@@ -1,0 +1,238 @@
+#
+sensor_id:
+    offset: 0x000
+    pos: 0
+    size: 12
+    comment: "An arbitrary identifier for the sensor head. This field
+              is packed into the metadata."
+quant_mode:
+    offset: 0x001
+    pos: 4
+    size: 2
+    mnemonic: {"div1": 0, "div2": 1, "div4": 2}
+    comment: "Affects quantization when tap accumulation is enabled
+              (see the `reduce_mode` field). The computation is
+              equivalent to:
+                  np.clip(np.floor(sum / 2**quant_mode), 0, 2**12 - 1).astype(int)"
+reduce_mode:
+    offset: 0x001
+    pos: 6
+    size: 1
+    comment: "Enables tap accumulation in the FPGA, which effects a
+              3:1 reduction on the MIPI data according to SENSOR_MODE
+              (see scan parameters) as follows:
+                  * SFMD mode: add same-distance bins over subframes
+                    such that 3 sub-frames reduce to 1 sub-frame.
+                  * DFMD mode: add same-distance bins over subframes
+                    of same frequency such that 6 sub-frames reduce to
+                    2 sub-frames."
+hdr_sat_limit:
+    offset: 0x002
+    pos: 0
+    size: 12
+    comment: "When a tap (A/B/C) from the Pleco is greater than this
+              value, a detection event is sent to the scan controller,
+              causing the ROI to be re-issued with modified settings.
+              Note that most of the last subframe is not evaluated
+              for saturation detection."
+roi_aggreg_cnt:
+    offset: 0x003
+    pos: 4
+    size: 4
+    comment: "The number of ROIs, minus one, to combine into a single
+              MIPI frame. This field causes FRAME_START and FRAME_END
+              packets to be omitted between ROI boundaries in order
+              to create larger frames (as required by some drivers).
+              For example, assuming N-line ROIs and tap accumulation,
+              a value of 2 causes the following MIPI CSI-2 packets out
+              of the FPGA:
+                  1. FrameStart packet, frame_cnt = i
+                  2. Metadata long packet for ROI k
+                  3. 2*N long packets for ROI k (tap accumulated)
+                  4. Metadata long packet for ROI k + 1
+                  5. 2*N long packets for ROI k + 1 (tap accumulated)
+                  6. Metadata long packet for ROI k + 2
+                  7. 2*N long packets for ROI k + 2 (tap accumulated)
+                  8. FrameEnd, frame_cnt = i
+                  9. FrameStart, frame_cnt = i + 1
+                  10. ..."
+tx_raw16_en:
+    offset: 0x004
+    pos: 0
+    size: 1
+    comment: "When asserted, MIPI packets out of the FPGA use RAW16
+              encoding. Metadata (12 bits) and data (14 bits for
+              `reduce_mode` = 1 else 12 bits) are left-justified in
+              the 16-bit field. RAW16 can be sent as RAW8 too: see
+              the field `tx_raw16_as_raw8`."
+tx_raw16_as_raw8:
+    offset: 0x004
+    pos: 1
+    size: 1
+    comment: "This field has no effect unless `tx_raw16_en` is
+              asserted. When this field is asserted MIPI packets out
+              of the FPGA have data type RAW8 instead of RAW16."
+tx_swap_bytes:
+    offset: 0x004
+    pos: 2
+    size: 1
+    comment: "This field provides flexibility for RawToDepth in
+              parsing RAW8 data, which is inherently a repacking of
+              RAW16 data. When this field is asserted, each pair of
+              bytes in the MIPI stream are swapped, which effects the
+              byte ordering of the 16-bit (uint16) values received by
+              RawToDepth."
+tx_raw16_as_rgb888:
+    offset: 0x004
+    pos: 3
+    size: 1
+    comment: "This field has no effect unless `tx_raw16_en` is
+              asserted. When this field is asserted MIPI packets out
+              of the FPGA have data type RGB888 instead of RAW16."
+test_mode:
+    offset: 0x006
+    pos: 0
+    size: 2
+    mnemonic: {"off": 0, "on_lines": 1, "on_pixels": 2, "on_taps": 3}
+    comment: "External: See unittests/test_mipi.py on enabling and evaluating the test modes.
+              Internal: See https://holosense.atlassian.net/wiki/spaces/M20/pages/1793690921/M20+FPGA+MIPI"  
+pkt_fifo_en:
+    offset: 0x006
+    pos: 2
+    size: 1
+    comment: "Enable the RX packet fifo (PKT_FIFO). Intended for debug
+              only."
+pkt_fifo_pop:
+    offset: 0x007
+    pos: 0
+    size: 1
+    pulsed: True
+    comment: "Writing this field causes the packet fifo to be popped.
+              The resulting data is available at the status registers
+              named `mipi_rx_pkt_fifo_*`."
+
+# status
+mipi_rx_pkt_fifo_dt:
+    offset: 0x008
+    pos: 0
+    size: 6
+    access: ro
+    mnemonic: {"FS": 0x00, "FE": 0x01, "RAW12": 0x2c}
+    comment: "The Data Type field for MIPI long and short packets"
+mipi_rx_pkt_fifo_vc:
+    offset: 0x008
+    pos: 6
+    size: 2
+    access: ro
+    comment: "The Virtual Channel field for MIPI long and short
+              packets. The field is unused and always zero."
+mipi_rx_pkt_fifo_wc_lo:
+    offset: 0x009
+    pos: 0
+    size: 8
+    access: ro
+    comment: "The lower byte of the Word Count field for MIPI long and
+              short packets. For FS and FE short packets, this field is
+              either zero-valued or contains a running frame count. For
+              long packets, this field contains the number of data bytes
+              in the packet."
+mipi_rx_pkt_fifo_wc_hi:
+    offset: 0x00a
+    pos: 0
+    size: 8
+    access: ro
+    comment: "The upper byte of the Word Count field for MIPI long and
+              short packets. For FS and FE short packets, this field is
+              either zero-valued or contains a running frame count. For
+              long packets, this field contains the number of data bytes
+              in the packet."
+mipi_rx_pkt_fifo_ecc:
+    offset: 0x00b
+    pos: 0
+    size: 8
+    access: ro
+    comment: "The ECC field for MIPI long and short packets. This field
+              contains the value received by the FPGA from PLECO."
+mipi_rx_pkt_fifo_ecc_check:
+    offset: 0x00c
+    pos: 0
+    size: 8
+    access: ro
+    comment: "The ECC field for MIPI long and short packets. This field
+              contains the value computed by the FPGA (i.e. over the
+              received MIPI header) and should match the field
+              `mipi_rx_pkt_fifo_ecc`, which is received from PLECO."
+mipi_rx_pkt_fifo_lpkt_raw12:
+    offset: 0x00d
+    pos: 0
+    size: 1
+    access: ro
+    comment: "A flag indicating that the packet is a RAW12 data type."
+mipi_rx_pkt_fifo_lpkt:
+    offset: 0x00d
+    pos: 1
+    size: 1
+    access: ro
+    comment: "A flag indicating that the packet is a long packet."
+mipi_rx_pkt_fifo_spkt:
+    offset: 0x00d
+    pos: 2
+    size: 1
+    access: ro
+    comment: "A flag indicating that the packet is a short packet."
+
+mipi_rx_pkt_fifo_count:
+    offset: 0x00e
+    pos: 0
+    size: 10
+    access: ro
+    comment: "Indicates the number of items presently in the packet
+              FIFO. The FIFO has capacity for 1024 items."
+mipi_rx_pkt_fifo_full:
+    offset: 0x00f
+    pos: 2
+    size: 1
+    access: ro
+    comment: "Indicates that the packet FIFO is presently full. The
+              FIFO has capacity for 1024 items."
+mipi_rx_pkt_fifo_empty:
+    offset: 0x00f
+    pos: 3
+    size: 1
+    access: ro
+    comment: "Indicates that the packet FIFO is presently empty."
+mipi_rx_pkt_fifo_watermark:
+    offset: 0x00f
+    pos: 4
+    size: 1
+    access: ro
+    comment: "Indicates that the packet FIFO contains at least 122
+              items, which is the number of packets for a single 20-row
+              ROI in DFMD mode:
+                  FS + 20 rows/subframe * 6 subframes + FE"
+
+mipi_rx_wc:
+    offset: 0x010
+    pos: 0
+    size: 16
+    access: ro
+    comment: "The Word Count field for the last MIPI packet received."
+mipi_rx_dt:
+    offset: 0x012
+    pos: 0
+    size: 6
+    access: ro
+    comment: "The Data Type field for the last MIPI packet received."
+mipi_rx_vc:
+    offset: 0x012
+    pos: 6
+    size: 2
+    access: ro
+    comment: "The Virtual Channel field for the last MIPI packet
+              received."
+mipi_rx_ecc:
+    offset: 0x013
+    pos: 0
+    size: 8
+    access: ro
+    comment: "The ECC field for the last MIPI packet received."

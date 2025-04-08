@@ -1,0 +1,91 @@
+#
+#
+#
+
+PARAMS:
+    WORD_SIZE: &WORD_SIZE 8
+    BLOCK_SIZE: &BLOCK_SIZE 1024
+    ADDR_SIZE: &ADDR_SIZE 16
+
+
+scan_params:
+    addr_base: 0x0000_0000
+    n_blocks: 32
+    fields_file: 'periphs/scan_params.yml'
+
+dbg:
+    addr_base: 0x0000_8000
+    n_blocks: 1
+    fields_file: 'periphs/dbg.yml'
+
+scan:
+    addr_base: 0x0000_8400
+    n_blocks: 1
+    fields_file: 'periphs/scan.yml'
+
+lcm:
+    addr_base: 0x0000_8800
+    n_blocks: 1
+    fields_file: 'periphs/lcm.yml'
+
+isp:
+    addr_base: 0x0000_8c00
+    n_blocks: 1
+    fields_file: 'periphs/isp.yml'
+
+mipi_rx:
+    addr_base: 0x0000_9000
+    n_blocks: 1
+    fields_file: 'periphs/isp_rx.yml'
+
+mipi_tx:
+    addr_base: 0x0000_9400
+    n_blocks: 1
+    fields_file: 'periphs/isp_tx.yml'
+
+adc:
+    addr_base: 0x0000_9800
+    n_blocks: 1
+    fields_file: 'periphs/adc.yml'
+
+dac_spi:
+    addr_base: 0x0000_9c00
+    n_blocks: 1
+    fields_file: 'periphs/spi_master.yml'
+
+itof_spi:
+    addr_base: 0x0000_a000
+    n_blocks: 1
+    fields_file: 'periphs/spi_master.yml'
+
+qspi:
+    addr_base: 0x0000_a400
+    n_blocks: 1
+    fields_file: 'periphs/qspi.yml'
+
+lcm_buff:
+    addr_base: 0x0000_a800
+    n_blocks: 2
+    fields_file: 'periphs/lcm_ram.yml'
+
+meta_buff:
+    addr_base: 0x0000_b000
+    n_blocks: 4
+    fields_file: 'periphs/scan_meta_ram.yml'
+
+bist_buff:
+    addr_base: 0x0000_c000
+    n_blocks: 8
+    fields_file: 'periphs/bist_ram.yml'
+
+bist:
+    addr_base: 0x0000_e000
+    n_blocks: 1
+    fields_file: 'periphs/bist.yml'
+
+rowcal:
+    addr_base: 0x0000_e400
+    n_blocks: 1
+    fields_file: 'periphs/scan_rowcal_ram.yml'
+
+# 0xe800 ...

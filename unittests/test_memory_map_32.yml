@@ -1,0 +1,79 @@
+#
+#
+#
+
+PARAMS:
+    WORD_SIZE: &WORD_SIZE 32
+    BLOCK_SIZE: 64
+
+
+periph0:
+    addr_base: 0x0000_0000
+    n_blocks: 1
+    fields: &periph0_fields
+        reg0:
+            offset: 0x000
+            pos: 0
+            size: *WORD_SIZE
+
+        reg1:
+            offset: 0x004
+            pos: 0
+            size: *WORD_SIZE
+
+        reg2:
+            offset: 0x008
+            pos: 0
+            size: *WORD_SIZE
+
+        reg3:
+            offset: 0x00c
+            pos: 0
+            size: *WORD_SIZE
+
+        reg4:
+            offset: 0x010
+            pos: 0
+            size: *WORD_SIZE
+
+        reg5_0_0:
+            offset: 0x014
+            pos: 0
+            size: 1
+        reg5_3_1:
+            offset: 0x014
+            pos: 1
+            size: 3
+        reg5_6_4:
+            offset: 0x014
+            pos: 4
+            size: 3
+        reg5_31_0:
+            offset: 0x014
+            pos: 7
+            size: 25
+
+        reg_double:
+            offset: 0x018
+            pos: 0
+            size: 64
+
+        reg_quadruple:
+            offset: 0x020
+            pos: 0
+            size: 128
+
+        reg_word_plus_chunk:
+            offset: 0x030
+            pos: 0
+            size: 40
+
+        reg_overlap:
+            offset: 0x034
+            pos: 8
+            size: 24
+
+periph1:
+    addr_base: 0x0000_0400
+    n_blocks: 1
+    fields: *periph0_fields

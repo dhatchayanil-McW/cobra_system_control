@@ -1,0 +1,15 @@
+[Unit]
+Description=Hosts Cobra Pyro5 remote object for remote access
+Requires=network.target
+After=network.target
+
+
+[Service]
+ExecStart=/usr/bin/run_remote
+TimeoutStopSec=5
+Restart=on-failure
+RestartSec=5s
+
+[Install]
+WantedBy=multi-user.target
+Also=monitor.service

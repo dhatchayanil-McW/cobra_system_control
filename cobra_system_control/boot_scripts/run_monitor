@@ -1,0 +1,15 @@
+#!/bin/sh
+
+# Set the exit status $? to the exit code of the last program to exit non-zero
+set -o pipefail
+
+REL_MONITOR=/usr/lib/python3.10/site-packages/cobra_system_control/boot_scripts/monitor.py
+DEV_MONITOR=/home/root/MYProject/cobra_system_control/cobra_system_control/boot_scripts/monitor.py
+
+if [ -f ${REL_MONITOR} ] ; then
+    /usr/bin/python3.10 ${REL_MONITOR} 2>&1 | logger
+else
+    /usr/bin/python3.10 ${DEV_MONITOR} 2>&1 | logger
+fi
+
+exit $?

@@ -1,0 +1,44 @@
+#
+roi0_word0:
+    offset: 0x0000
+    pos: 0
+    size: &WORD_SIZE 8
+    comment: "First ROI, first word"
+roi0_word31:
+    offset: 0x001f
+    pos: 0
+    size: *WORD_SIZE
+    comment: "First ROI, last word"
+
+roi1_word0:
+    offset: 0x0040
+    pos: 0
+    size: *WORD_SIZE
+    comment: "Second ROI, first word"
+roi1_word31:
+    offset: 0x005f
+    pos: 0
+    size: *WORD_SIZE
+    comment: "Second ROI, last word"
+
+roi510_word0:
+    offset: 0x7f80
+    pos: 0
+    size: *WORD_SIZE
+    comment: "Penultimate ROI, first word"
+roi510_word31:
+    offset: 0x7f9f
+    pos: 0
+    size: *WORD_SIZE
+    comment: "Penultimate ROI, last word"
+
+roi511_word0:
+    offset: 0x7fc0
+    pos: 0
+    size: *WORD_SIZE
+    comment: "Last ROI, first word"
+roi511_word31:
+    offset: 0x7fdf
+    pos: 0
+    size: *WORD_SIZE
+    comment: "Last ROI, last word"

@@ -1,0 +1,218 @@
+#
+enable:
+    offset: 0x000
+    pos: 0
+    size: 1
+    comment: "Enable the ADC peripheral. After this signal asserts, the
+              core will re-calibrate itself."
+adc_sample_window:
+    offset: 0x001
+    pos: 0
+    size: 8
+    comment: "Sets the duration of the sampling window. A value of
+              zero corresponds to the minimum value of 0.64 us (i.e.
+              16 ADC clock cycles), which is also the step size."
+amux_sel_ovr:
+    offset: 0x002
+    pos: 0
+    size: 5
+    comment: "Overrides the monitor's analog mux select value when
+              `amux_sel_ovr_en` is asserted. The controller continues
+              to run when overridden--the override is applied just
+              before the FPGA pads--so most memory-mapped locations
+              will not contain the advertised data."
+amux_sel_ovr_en:
+    offset: 0x002
+    pos: 5
+    size: 1
+    comment: "Enables overriding of the analog mux select value."
+
+# status
+mon_lcm_temp4:
+    offset: 0x010
+    pos: 0
+    size: 16
+    access: ro
+    comment: "m25 only"
+mon_csense_ito:
+    offset: 0x010
+    pos: 0
+    size: 16
+    access: ro
+    comment: "m30 only"
+mon_lcm_temp5:
+    offset: 0x012
+    pos: 0
+    size: 16
+    access: ro
+    comment: ""
+mon_ito_hi:
+    offset: 0x014
+    pos: 0
+    size: 16
+    access: ro
+    comment: "m25 only (high ITO rail)."
+mon_ito:
+    offset: 0x014
+    pos: 0
+    size: 16
+    access: ro
+    comment: "m30 only (final ITO output)."
+mon_laser_therm:
+    offset: 0x016
+    pos: 0
+    size: 16
+    access: ro
+    comment: ""
+mon_lcm_present:
+    offset: 0x018
+    pos: 0
+    size: 16
+    access: ro
+    comment: "m25 only"
+mon_amb_det_1:
+    offset: 0x018
+    pos: 0
+    size: 16
+    access: ro
+    comment: "m30 only"
+mon_lcm_currs_coarse:
+    offset: 0x01a
+    pos: 0
+    size: 16
+    access: ro
+    comment: ""
+mon_himax_out1:
+    offset: 0x01c
+    pos: 0
+    size: 16
+    access: ro
+    comment: "m25 only"
+mon_21v_raw:
+    offset: 0x01c
+    pos: 0
+    size: 16
+    access: ro
+    comment: "m30 only"
+mon_vref_hi:
+    offset: 0x01e
+    pos: 0
+    size: 16
+    access: ro
+    comment: ""
+mon_vref_lo:
+    offset: 0x020
+    pos: 0
+    size: 16
+    access: ro
+    comment: ""
+mon_tp:
+    offset: 0x022
+    pos: 0
+    size: 16
+    access: ro
+    comment: "m25 only"
+mon_amb_det_2:
+    offset: 0x022
+    pos: 0
+    size: 16
+    access: ro
+    comment: "m30 only"
+mon_vlda_currs:
+    offset: 0x024
+    pos: 0
+    size: 16
+    access: ro
+    comment: ""
+mon_pcb_temp:
+    offset: 0x026
+    pos: 0
+    size: 16
+    access: ro
+    comment: ""
+mon_himax_out1026:
+    offset: 0x028
+    pos: 0
+    size: 16
+    access: ro
+    comment: "m25 only"
+mon_fpga_currs:
+    offset: 0x028
+    pos: 0
+    size: 16
+    access: ro
+    comment: "m30 only"
+mon_vlda:
+    offset: 0x02a
+    pos: 0
+    size: 16
+    access: ro
+    comment: ""
+mon_24v:
+    offset: 0x02c
+    pos: 0
+    size: 16
+    access: ro
+    comment: ""
+mon_18v_lcm:
+    offset: 0x02e
+    pos: 0
+    size: 16
+    access: ro
+    comment: ""
+mon_9v_lcm:
+    offset: 0x030
+    pos: 0
+    size: 16
+    access: ro
+    comment: ""
+mon_2p8v:
+    offset: 0x032
+    pos: 0
+    size: 16
+    access: ro
+    comment: ""
+mon_vmgh:
+    offset: 0x034
+    pos: 0
+    size: 16
+    access: ro
+    comment: ""
+mon_1p2v:
+    offset: 0x036
+    pos: 0
+    size: 16
+    access: ro
+    comment: ""
+
+mon_lcm_currs_fine:
+    offset: 0x038
+    pos: 0
+    size: 16
+    access: ro
+    comment: ""
+
+mon_vcc:
+    offset: 0x03a
+    pos: 0
+    size: 16
+    access: ro
+    comment: ""
+mon_vccaux:
+    offset: 0x03c
+    pos: 0
+    size: 16
+    access: ro
+    comment: ""
+mon_vccio0:
+    offset: 0x03e
+    pos: 0
+    size: 16
+    access: ro
+    comment: ""
+mon_dtr:
+    offset: 0x040
+    pos: 0
+    size: 16
+    access: ro
+    comment: ""

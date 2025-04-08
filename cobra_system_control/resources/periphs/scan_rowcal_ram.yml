@@ -1,0 +1,45 @@
+#
+thresh_0_0:
+    offset: 0x000
+    pos: 0
+    size: &WORD_SIZE 8
+    comment: "For steering_idx = 0 and 1 (i.e. steering_idx >> 1 == 0),
+              this is the laser temperature threshold that separates the
+              -2 and -1 adjustment regions."
+thresh_0_1:
+    offset: 0x001
+    pos: 0
+    size: *WORD_SIZE
+    comment: "For steering_idx = 0 and 1 (i.e. steering_idx >> 1 == 0),
+              this is the laser temperature threshold that separates the
+              -1 and 0 adjustment regions."
+thresh_0_2:
+    offset: 0x002
+    pos: 0
+    size: *WORD_SIZE
+    comment: "For steering_idx = 0 and 1 (i.e. steering_idx >> 1 == 0),
+              this is the laser temperature threshold that separates the
+              0 and +1 adjustment regions."
+thresh_0_3:
+    offset: 0x003
+    pos: 0
+    size: *WORD_SIZE
+    comment: "For steering_idx = 0 and 1 (i.e. steering_idx >> 1 == 0),
+              this is the laser temperature threshold that separates the
+              +1 and +2 adjustment regions."
+
+thresh_1_0:
+    offset: 0x004
+    pos: 0
+    size: *WORD_SIZE
+    comment: "For steering_idx = 2 and 3 (i.e. steering_idx >> 1 == 1),
+              this is the laser temperature threshold that separates the
+              -2 and -1 adjustment regions."
+
+thresh_255_3:
+    offset: 0x3ff
+    pos: 0
+    size: *WORD_SIZE
+    comment: "For steering_idx = 510 and 511 (i.e. steering_idx >> 1 == 255),
+              this is the laser temperature threshold that separates the
+              +1 and +2 adjustment regions."

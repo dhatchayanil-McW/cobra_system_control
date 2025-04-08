@@ -1,0 +1,60 @@
+#
+res0_accum_lo:
+    offset: 0x0000
+    pos: 0
+    size: 28
+    comment: "Result for LCD driver output pin OUT1, BIST onehot
+              measurement. Also holds the result for the ADC mode
+              (see `bist_start`)."
+res0_loop_count:
+    offset: 0x0003
+    pos: 4
+    size: 4
+    comment: "A counter that increments with each execution of BIST for
+              the LCD driver output pin OUT1. If this channel is marked
+              as shorted in the result buffer (see `res0_shorted_flag`),
+              BIST will not run and the counter will not increment. This
+              field is corrupted in ADC mode."
+res0_accum_hi:
+    offset: 0x0004
+    pos: 0
+    size: 28
+    comment: "Result for LCD driver output pin OUT1, BIST background
+              measurement. This field is corrupted in ADC mode."
+res0_shorted_flag:
+    offset: 0x0007
+    pos: 7
+    size: 1
+    comment: "Indicates the rail for LCD driver output pin OUT1 is
+              shorted. (See `thresh`. This field is corrupted in ADC
+              mode.) "
+
+res1_accum_lo:
+    offset: 0x0008
+    pos: 0
+    size: 28
+    comment: "Result for LCD driver output pin OUT2, BIST onehot
+              measurement. Also holds the result for the ADC mode
+              (see `bist_start`)."
+res1_loop_count:
+    offset: 0x000b
+    pos: 4
+    size: 4
+    comment: "A counter that increments with each execution of BIST for
+              the LCD driver output pin OUT2. If this channel is marked
+              as shorted in the result buffer (see `res1_shorted_flag`),
+              BIST will not run and the counter will not increment. This
+              field is corrupted in ADC mode."
+res1_accum_hi:
+    offset: 0x000c
+    pos: 0
+    size: 28
+    comment: "Result for LCD driver output pin OUT2, BIST background
+              measurement. This field is corrupted in ADC mode."
+res1_shorted_flag:
+    offset: 0x000f
+    pos: 7
+    size: 1
+    comment: "Indicates the rail for LCD driver output pin OUT2 is
+              shorted. (See `thresh`. This field is corrupted in ADC
+              mode.) "

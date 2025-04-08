@@ -1,0 +1,10 @@
+#!/bin/sh
+
+REL_REMOTE=/usr/lib/python3.10/site-packages/cobra_system_control/boot_scripts/host_cobra.py
+DEV_REMOTE=/home/root/MYProject/cobra_system_control/cobra_system_control/boot_scripts/host_cobra.py
+
+if [ -f ${REL_REMOTE} ] ; then
+    /usr/bin/python3.10 ${REL_REMOTE} 2>&1 | logger
+else
+    /usr/bin/python3.10 ${DEV_REMOTE} 2>&1 | logger
+fi

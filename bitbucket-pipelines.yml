@@ -1,0 +1,143 @@
+image: docker:latest
+clone:
+  lfs: true
+
+definitions:
+  steps:
+    - &default-run-env
+        runs-on:
+          - 'self.hosted'
+          - 'linux'
+          - 'runner.docker'
+
+    - &common-variables
+        SSH_PRIVATE_KEY_PIPELINE: $SSH_PRIVATE_KEY_PIPELINE
+        SOURCE_CODE_DIR: $(pwd)
+pipelines:
+  pull-requests:
+    '**':
+      - parallel:
+          - step: &git-secrets-scan
+              name: Run Git Secrets Scan
+              caches:
+                - docker
+              script:
+                - echo "$DOCKER_HUB_PASSWORD" | docker login --username $DOCKER_HUB_USERNAME --password-stdin
+                - pipe: docker://lumotive/devops-tasks:git-secrets-scan-latest
+              <<: *default-run-env
+          - step: &spell-check
+              name: Spell Check
+              caches:
+                - docker
+              script:
+                - echo "$DOCKER_HUB_PASSWORD" | docker login --username $DOCKER_HUB_USERNAME --password-stdin
+                - pipe: docker://lumotive/devops-tasks:crate-ci-typos-check-latest
+                  variables:
+                    VERSION: '1.16.23'
+              <<: *default-run-env
+          - step: &unit-tests
+              name: Run Cobra System Control Unittests
+              fast-fail: true
+              caches:
+                - docker
+              script:
+                - echo "$DOCKER_HUB_PASSWORD" | docker login --username $DOCKER_HUB_USERNAME --password-stdin
+                - pipe: docker://lumotive/devops-tasks:system_control_unittests
+                  variables:
+                    <<: *common-variables
+                    TEST_DIR: $COVERAGE_TEST_DIR
+              artifacts:
+                - pytest_summary_report.json
+              <<: *default-run-env
+          - step: &pylint-check
+              name: Run Pylint linting & Static Analysis Checks
+              caches:
+                - docker
+              script:
+                - echo "$DOCKER_HUB_PASSWORD" | docker login --username $DOCKER_HUB_USERNAME --password-stdin
+                - pipe: docker://lumotive/devops-tasks:pylint_check_linux
+                  variables:
+                    <<: *common-variables
+                    PYLINT_THRESHOLD: $PYLINT_THRESHOLD
+                    PYLINT_CHECK_DIR: $PYLINT_CHECK_DIR
+              artifacts:
+                - pylint_output.txt
+              <<: *default-run-env
+          - step: &code-coverage-check
+              name: Run Python Code Coverage Checks
+              caches:
+                - docker
+              script:
+                - echo "$DOCKER_HUB_PASSWORD" | docker login --username $DOCKER_HUB_USERNAME --password-stdin
+                - pipe: docker://lumotive/devops-tasks:python_code_coverage
+                  variables:
+                    <<: *common-variables
+                    COVERAGE_SOURCE_DIR: $COVERAGE_SOURCE_DIR
+                    COVERAGE_TEST_DIR: $COVERAGE_TEST_DIR
+              artifacts:
+                - coverage_py_report.json
+              <<: *default-run-env
+          - step: &license-check
+              name: Run Python Package License Validation Checks
+              caches:
+                - docker
+              condition:
+                changesets:
+                   includePaths:
+                     - 'pyproject.toml'
+              script:
+                 - echo "$DOCKER_HUB_PASSWORD" | docker login --username $DOCKER_HUB_USERNAME --password-stdin
+                 - docker run -v "/opt/atlassian/pipelines/agent/build":/usr/src/app lumotive/devops-tasks:python_license_validator
+              services:
+                - docker
+              fast-fail: true
+              artifacts:
+                - coverage_py_report.json
+              <<: *default-run-env
+      - step: # This step should run after parallel steps as it uses artifacts from parallel steps
+          name: Code Coverage Report Generation
+          caches:
+            - docker
+          script:
+            - echo "$DOCKER_HUB_PASSWORD" | docker login --username $DOCKER_HUB_USERNAME --password-stdin
+            - pipe: docker://lumotive/devops-tasks:coverage_report
+              variables:
+                <<: *common-variables
+                BITBUCKET_WORKSPACE: $BITBUCKET_WORKSPACE
+                BITBUCKET_REPO_SLUG: $BITBUCKET_REPO_SLUG
+                BITBUCKET_COMMIT: $BITBUCKET_COMMIT
+                COVERAGE_REPORT_APP_USERNAME: $COVERAGE_REPORT_APP_USERNAME
+                COVERAGE_REPORT_APP_PASSWORD: $COVERAGE_REPORT_APP_PASSWORD
+          <<: *default-run-env
+  branches:
+    develop:
+    - step: &trigger-sync-source
+        name: Trigger sync-source pipeline for Cobra System Control for HM30
+        caches:
+          - docker
+        script:
+          - pipe: atlassian/trigger-pipeline:5.4.1
+            variables:
+              ACCOUNT: 'lumotive'
+              REPOSITORY: 'cobra_system_control_hm30'
+              BITBUCKET_USERNAME: $BITBUCKET_USERNAME_SYNC_SOURCE_CI
+              BITBUCKET_APP_PASSWORD: $BITBUCKET_APP_PASSWORD_SYNC_SOURCE_CI
+              REF_TYPE: 'branch'
+              REF_NAME: 'master'
+              CUSTOM_PIPELINE_NAME: 'sync-source'
+              DEBUG: 'true'
+        <<: *default-run-env
+
+    - step: &generate-docs
+        name: Generate Code Level Documentation using Doxygen
+        caches:
+          - docker
+        script:
+          - echo "$DOCKER_HUB_PASSWORD" | docker login --username $DOCKER_HUB_USERNAME --password-stdin
+          - pipe: docker://lumotive/devops-tasks:doxygen_doc_gen
+            variables:
+              ARTIFACTORY_USER: $ARTIFACTORY_USER
+              ARTIFACTORY_API_KEY: $ARTIFACTORY_API_KEY
+              ARTIFACTORY_URL: $ARTIFACTORY_URL
+              ARTIFACTORY_SW_TEAM_REPO: $ARTIFACTORY_SW_TEAM_REPO
+        <<: *default-run-env

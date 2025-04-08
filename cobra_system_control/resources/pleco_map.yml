@@ -1,0 +1,1469 @@
+#
+#
+#
+
+PARAMS:
+    WORD_SIZE: &WORD_SIZE 8
+    BLOCK_SIZE: &BLOCK_SIZE 1
+
+
+pleco:
+    addr_base: 0x0000_0000
+    n_blocks: 0x0001_0000
+    fields:
+        so_freq_en:
+            offset: 0
+            pos: 0
+            size: 1
+            comment: "0: Hard frame request,
+                      1: Soft frame request"
+            default: 1
+        freq_trig:
+            offset: 1
+            pos: 0
+            size: 1
+            comment: "0: Set Trig_Int to state '0',
+                      1: Set Trig_Int to state '1'"
+            default: 0
+        deep_sleep_en:
+            offset: 2
+            pos: 0
+            size: 1
+            mnemonic: {"off": 0, "on": 1}
+            comment: "0: No power reduction in Standby state,
+                         T_ANA_WUP around 100ns
+                      1: Power reduction in Standby state,
+                         T_ANA_WUP around 30ms(TBD after debug)"
+            default: 0
+        group_hold:
+            offset: 16
+            pos: 0
+            size: 1
+            mnemonic: {"off": 0, "on": 1}
+            comment: "Registers in Table 21 of the PLECO datasheet can only be
+                      changed with group hold on. Their values are usable when
+                      group hold is switched back to off"
+            default: 0
+        srst_n:
+            offset: 17
+            pos: 0
+            size: 1
+            mnemonic: {'off': 1, 'on': 0}
+            comment: "Sensor soft reset, active-low. Must be asserted for at
+                      least 2 us."
+            default: 1
+
+        ## TODO: mentioned in datasheet but doesn't appear in any memory maps
+        #cci_slave_addr:
+        #    offset:
+        #    pos:
+        #    size:
+        #    otp: True
+        #    comment: "Selecs the I2C/CCI slave address when the XCE pin is
+        #              tied high."
+
+        ct_roi_sel:
+            offset: 17
+            pos: 3
+            size: 5
+            comment: "cmtop roi selection. Ignore. Controls the active drivers
+                      of the charge modulation drivers"
+            default: 31
+        frm_clk_clr:
+            offset: 18
+            pos: 0
+            size: 1
+            comment: "Internal counter clear register setting.
+                      Joris -- 'So not really of interest to users"
+        adc_clk_h_gate_en:
+            offset: 18
+            pos: 1
+            size: 1
+            comment: "0: ADC high speed clock always high.
+                         So this can be used when not the sensor is not
+                         converting pixel data ( eg during exposure state )
+                         to save power.
+                      1: ADC clk enabled during conversion of pixel data."
+        adc_clk_l_gate_en:
+            offset: 18
+            pos: 2
+            size: 1
+            comment: "See adc_clk_gate_en
+                      Same as adc_clk_gate_en but for ADC_CLK_L clock
+                      (Note the column ADC uses 2 clocks CLK_ADC_H and CLK_ADC_L)"
+        apc_pframe_en:
+            offset: 18
+            pos: 3
+            size: 1
+            comment: "0: APC active per subframe
+                      1: APC active only subframe 0 in each depth frame
+                      Joris -- APC signal is a signal to be used by an external laser driver
+                      to start laser driver calibration process.
+                      For PLECO system laser driver CXA4016GF chip was identified
+                      during PLECO feasibility as chip to be used on PLECO iTof system.
+                      So you will see in PLECO datasheet some signals and functionality
+                      referring to this specific laser driver.
+                      In case Lumotive laser driver doesn’t have this functionality
+                      you can safely ignore it."
+            default: 0
+        apc_en:
+            offset: 18
+            pos: 4
+            size: 1
+            comment: "0: APC keeps low
+                      1: APC will be active before exposure
+                      APC is automatic power control for the laser"
+            default: 1
+        flip_h:
+            offset: 18
+            pos: 5
+            size: 1
+            mnemonic: {"off": 0, "on": 1}
+            comment: "Horizontal flipping. Active-high"
+            default: 0
+        flip_v:
+            offset: 18
+            pos: 6
+            size: 1
+            mnemonic: {"on": 0, "off": 1}
+            comment: "Vertical flipping. Active-low"
+            default: 0
+        xvs_sframe_en:
+            offset: 20
+            pos: 0
+            size: 6
+            comment: "Each bit indicates if XVS will be output per sub-frame"
+            default: 1
+        win_eb_en:
+            offset: 21
+            pos: 0
+            size: 4
+            comment: "EB window enable. An alias for rwin*_eb_en."
+            default: 0
+        rwin0_eb_en:
+            offset: 21
+            pos: 0
+            size: 1
+            comment: "0: Window output normal data
+                      1: Window output EB data"
+            default: 0
+        rwin1_eb_en:
+            offset: 21
+            pos: 1
+            size: 1
+            comment: "0: Window output normal data
+                      1: Window output EB data"
+            default: 0
+        rwin2_eb_en:
+            offset: 21
+            pos: 2
+            size: 1
+            comment: "0: Window output normal data
+                      1: Window output EB data"
+            default: 0
+        rwin3_eb_en:
+            offset: 21
+            pos: 3
+            size: 1
+            comment: "0: Window output normal data
+                      1: Window output EB data"
+            default: 0
+        bin_mode:
+            offset: 21
+            pos: 4
+            size: 2
+            mnemonic: {"none": 0, "2x2": 1, "4x4": 2}
+            comment: "Binning mode"
+            default: 0
+        mod_opt:
+            offset: 21
+            pos: 6
+            size: 2
+            mnemonic: {"dmfd": 0, "smfd": 1, "image": 2, "af": 3}
+            comment: "Work mode"
+            default: 0
+        apc_start_length:
+            offset: 22
+            pos: 0
+            size: 12
+            comment: "In # of lines"
+            default: 60
+        apc_end_length:
+            offset: 24
+            pos: 0
+            size: 8
+            comment: "In # of lines"
+            default: 4
+        unknown_26:
+            offset: 26
+            pos: 0
+            size: 8
+            comment: "WARN DO NOT CHANGE
+                      Controls line time of ADC.
+                      Do not change but interesting to readout"
+        min_frm_length:
+            offset: 28
+            pos: 0
+            size: 24
+            comment: "Register setting should be larger than
+                      10 + 3 * N_ROW + INTE
+                      TODO What is INTE here?
+                      Subframe readout time is
+                      T_subframe = 264 * SUB_FRM_LINE_NUM * T_clk_pix
+                      TODO Is SUB_FRM_LINE_NUM = MIN_FRM_LENGTH / N_subframe?
+                      Minimum value of MIPI frame period"
+            default: 2104
+        frm_num_lo:
+            offset: 31
+            pos: 0
+            size: 8
+            comment: "See frm_num_hi. Number of frames per trigger
+                      (1 -> one frame)."
+            default: 1
+        frm_num_hi:
+            offset: 32
+            pos: 0
+            size: 8
+            comment: "See frm_num_lo. Number of frames per trigger
+                      (1 -> one frame)."
+            default: 0
+        tdig0_ld_apc:
+            offset: 33
+            pos: 0
+            size: 8
+            mnemonic: {"inte_state": 17, "apc_gate": 29, "fexp": 30, "ld_clrn": 31, "frd": 32,
+                       "v-blanking": 33, "zero": 44}
+            comment: "Select TDIG0 output signal"
+            default: 0
+        tdig1_ld_clrn:
+            offset: 34
+            pos: 0
+            size: 8
+            mnemonic: {"apc_gate": 29, "fexp": 30, "ld_clrn": 31, "frd": 32,
+                       "v-blanking": 33, "zero": 44}
+            comment: "Select TDIG1 output signal"
+            default: 0
+        pga_gain:
+            offset: 35
+            pos: 0
+            size: 5
+            comment: "PGA gain. 1 + 0.1 * n.
+                      Scales the pixel output to the ADC range"
+            default: 5
+        rwin0_s:
+            offset: 36
+            pos: 0
+            size: 16
+            comment: "Start address in window 0.  Should be set between
+                      0 and 511"
+            default: 4
+        rwin0_l:
+            offset: 38
+            pos: 0
+            size: 16
+            comment: "Number of readout rows in window 0. Set to 4 +
+                      num_ROI_lines"
+            default: 480
+        rwin1_s:
+            offset: 40
+            pos: 0
+            size: 16
+            comment: "Start address in window 1.  Should be set between
+                      0 and 511"
+            default: 0
+        rwin1_l:
+            offset: 42
+            pos: 0
+            size: 16
+            comment: "Number of readout rows in window 1"
+            default: 0
+        rwin2_s:
+            offset: 44
+            pos: 0
+            size: 16
+            comment: "Start address in window 2.  Should be set between
+                      0 and 511"
+            default: 0
+        rwin2_l:
+            offset: 46
+            pos: 0
+            size: 16
+            comment: "Number of readout rows in window 2"
+            default: 0
+        rwin3_s:
+            offset: 48
+            pos: 0
+            size: 16
+            comment: "Start address in window 3.  Should be set between
+                      0 and 511"
+            default: 0
+        rwin3_l:
+            offset: 50
+            pos: 0
+            size: 16
+            comment: "Number of readout rows in window 3"
+            default: 0
+        cwin0_s:
+            offset: 52
+            pos: 0
+            size: 16
+            comment: "Start column address of column windowing function.
+                      20210607 feedback from He:
+                      According to the pixel array architecture, set it to 8."
+        cwin0_l_div8:
+            offset: 54
+            pos: 0
+            size: 16
+            comment: "Number of readout columns in horizontal direction,
+                      must be 8 x N, with N an integer.."
+            default: 640
+        cwin0_s_div8:
+            offset: 56
+            pos: 0
+            size: 16
+            comment: "Start address i readout columns in horizontal direction,
+                      must be 8 x N, with N an integer.
+                      56 is dummy_addr parameter. The dummy address is used
+                      to make the circuit stable when the exposure is too long"
+            default: 501
+        pll3_div_n_lo:
+            offset: 62
+            pos: 0
+            size: 8
+            comment: "See pll3_div_n_hi. PLL3 is for MIPI.
+                      Valid values for this divider are even numbers
+                      between 126 and 510 inclusive. The value needs
+                      to be split between the lo and hi registers.
+                      WARN the datasheet is incorrect."
+            default: 200
+        pll3_div_n_hi:
+            offset: 63
+            pos: 0
+            size: 1
+            comment: "See pll3_div_n_lo. PLL3 is for MIPI.
+                      Valid values for this divider are even numbers
+                      between 126 and 510 inclusive. The value needs
+                      to be split between the lo and hi registers.
+                      WARN the datasheet is incorrect."
+            default: 0
+        pll3_div_i:
+            offset: 64
+            pos: 0
+            size: 2
+            mnemonic: {"1/6": 0, "1/4": 1, "1/3": 2, "1/2": 3}
+            comment: "PLL3 is for MIPI"
+            default: 2
+        pll3_div_b:
+            offset: 64
+            pos: 2
+            size: 2
+            mnemonic: {"1/1": 0, "1/2": 1, "1/4": 2, "1/8": 3}
+            comment: "PLL3 is for MIPI"
+            default: 0
+        lane_num:
+            offset: 65
+            pos: 0
+            size: 3
+            mnemonic: {"2x": 1, "4x": 3}
+            comment: "Number of MIPI lanes.
+                      Updated 20210525 based on He's feedback."
+            default: 1
+        mipi_data_type:
+            offset: 66
+            pos: 0
+            size: 6
+            mnemonic: {
+                #"RAW6": 0x28,
+                #"RAW7": 0x29,
+                #"RAW8": 0x2a,
+                "RAW10": 0x2b,
+                "RAW12": 0x2c,
+                #"RAW14": 0x2d
+                }
+            default: 0
+            comment: "RAW10 and RAW12 supported based on ADC resolution
+                      Generally using RAW12. Unknown if all data formats
+                      are supported"
+        mipi_virtual_channel_idn:
+            offset: 66
+            pos: 6
+            size: 2
+            default: 0
+            comment: "TODO unknown support. Part of MIPI spec."
+        ebd_byte_0:
+            offset: 67
+            pos: 0
+            size: 8
+            comment: "first byte of the first line of embedded data"
+            default: 10
+        ebd_byte_1:
+            offset: 68
+            pos: 0
+            size: 8
+            comment: "first byte of the second line of embedded data"
+            default: 10
+        # TODO: pos and size unknown; required for PLECO operation
+        adc_error:
+            offset: 74
+            pos: 0
+            size: 16
+            comment: "part of required registers for operation; set to 4452"
+            default: 4132
+        rd_data_copy:
+            offset: 76
+            pos: 1
+            size: 1
+            comment: "Depth data hold, to be sure no update during readout, set
+                      DCD_Hold sequentially to '0' and then '1' before
+                      DCD_FINAL readout"
+            default: 0
+        # TODO: datasheet is missing 'pos' and 'size'
+        dep_data_ready:
+            offset: 143
+            pos: 0
+            size: 1
+            access: ro
+            comment: "AF data valid flag register, read only
+                        0: depth data not ready
+                        1: depth data ready"
+            default: 1
+        dep_final_copy:
+            offset: 144
+            pos: 0
+            size: 13
+            comment: "Final Calculated Depth data"
+            default: 10
+
+        #TODO pos and size unknown; required for PLECO operation
+        test_bias_continue:
+            offset: 224
+            pos: 0
+            size: 8
+            comment:
+            default: 15
+        laser_high_z_idle:
+            offset: 225
+            pos: 4
+            size: 1
+            comment: "Controls the laser driver to low power mode
+                      during the idle phase. Sets the behavior
+                      of the LVDS lines.
+                        0: Continue driving LVDS during idle phase (high-power mode)
+                        1: High-Z during idle (low-power mode)"
+            default: 1
+        laser_current_lo:
+            offset: 373
+            pos: 0
+            size: 8
+            comment: "See laser_current_hi. Laser current"
+            default: 0
+        laser_current_hi:
+            offset: 374
+            pos: 0
+            size: 8
+            comment: "See laser_current_lo. Laser current"
+            default: 0
+        temp_coef_lo:
+            offset: 451
+            pos: 0
+            size: 8
+            comment: 'Low byte of temperature coefficient'
+        temp_coef_hi:
+            offset: 452
+            pos: 0
+            size: 8
+            comment: 'High byte of temperature coefficient'
+        ld_xemo_tdig_out:
+            offset: 513
+            pos: 0
+            size: 2
+            comment: "20210607 He feedback:
+                      A laser status indication.
+                      [0]: send en_laser signal normal when LD being in error state
+                      [1]: pull low en_laser signal to cmtop when LD being in error state
+                      The default is 3. Lumotive has been setting this to 1 with success
+                      A value of 3 results in no laser signal. The [0] and [1] above must
+                      be bit fields and not decimal values"
+        laser_preheat_length_f0:
+            offset: 518
+            pos: 0
+            size: 8
+            comment: "# of laser preheat for frequency F0 in # of bursts"
+            default: 0
+        laser_preheat_length_f1:
+            offset: 520
+            pos: 0
+            size: 8
+            comment: "# of laser preheat for frequency F1 in # of bursts"
+            default: 0
+        dum_preheat_length_f0:
+            offset: 522
+            pos: 0
+            size: 8
+            comment: "# of dummy preheat for frequency F0 in # of bursts"
+            default: 1
+        dum_preheat_length_f1:
+            offset: 524
+            pos: 0
+            size: 8
+            comment: "# of dummy preheat for frequency F1 in # of bursts"
+            default: 1
+        inte_burst_length_f0:
+            offset: 526
+            pos: 0
+            size: 12
+            comment: "Number of bursts needed to obtain desired
+                      integration time given the modulation frequency.
+                      npulse_fx defines the number of clock cycles in 1 burst,
+                      with the number of laser pulses being 1/3 of this number.
+                      See get_timing_parameters() in pleco.py for details
+                      on the calculation of this parameter"
+            default: 430
+        inte_burst_length_f1:
+            offset: 528
+            pos: 0
+            size: 12
+            comment: "Number of bursts needed to obtain desired
+                      integration time given the modulation frequency.
+                      npulse_fx defines the number of clock cycles in 1 burst,
+                      with the number of laser pulses being 1/3 of this number.
+                      See get_timing_parameters() in pleco.py for details
+                      on the calculation of this parameter"
+            default: 430
+        inte_total_burst_length_f0:
+            offset: 530
+            pos: 0
+            size: 16
+            comment: "Used to set a DUMMY_BF state wait time before
+                      the PREHEAT_BURSTS and DUMMY_PREHEAT times
+                      for frequency F0. DUMMY_BF =
+                      inte_total_burst_length_f0 - inte_burst_length_f0
+                      in No. bursts"
+            default: 640
+        inte_total_burst_length_f1:
+            offset: 532
+            pos: 0
+            size: 16
+            comment: "Used to set a DUMMY_BF state wait time before
+                      the PREHEAT_BURSTS and DUMMY_PREHEAT times
+                      for frequency F1. DUMMY_BF =
+                      inte_total_burst_length_f1 - inte_burst_length_f1
+                      in No. bursts"
+            default: 640
+        inte_mg_ctrl:
+            offset: 534
+            pos: 0
+            size: 1
+            comment: "0: Normal operation
+                      1: Modulation test, keep registers MGx constantly
+                         high or low"
+            default: 0
+        inte_mg1_state:
+            offset: 535
+            pos: 0
+            size: 1
+            comment: "State of MG1 when INTE_MG_CTRL = 1"
+            default: 1
+        inte_mg2_state:
+            offset: 535
+            pos: 1
+            size: 1
+            comment: "State of MG2 when INTE_MG_CTRL = 1"
+            default: 0
+        inte_mg3_state:
+            offset: 535
+            pos: 2
+            size: 1
+            comment: "State of MG3 when INTE_MG_CTRL = 1"
+            default: 0
+        inte_laser_state_ir:
+            offset: 536
+            pos: 0
+            size: 1
+            comment: "State of Laser during integration in Image Mode only
+                        0: Constantly low
+                        1: Constantly high"
+            default: 1
+        npulse_f0_lo:
+            offset: 537
+            pos: 0
+            size: 8
+            comment: "See npulse_f0_hi. Number of pulses to be generated. It
+                      should be a multiple of 3 in order to have equal amount
+                      of pulses for each of the MG drivers. Each MG will
+                      deliver 1/3 of the total npulse number.
+
+                      Additional info: The number of clock cycles in one burst.
+                      The laser fires for 1/3 of this setting. Bursts
+                      are repeated using inte_burst_length_fx to build
+                      up the desired integration time given the modulation
+                      frequency setting. See get_timing_parameters() in
+                      pleco.py for details on the calculation of this
+                      parameter."
+            default: 209
+        npulse_f0_hi:
+            offset: 538
+            pos: 0
+            size: 4
+            comment: "See npulse_f0_lo. Number of pulses to be generated. It
+                      should be a multiple of 3 in order to have equal amount
+                      of pulses for each of the MG drivers. Each MG will
+                      deliver 1/3 of the total npulse number.
+
+                      Additional info: The number of clock cycles in one burst.
+                      The laser fires for 1/3 of this setting. Bursts
+                      are repeated using inte_burst_length_fx to build
+                      up the desired integration time given the modulation
+                      frequency setting. See get_timing_parameters() in
+                      pleco.py for details on the calculation of this
+                      parameter."
+            default: 1
+        dpulse_f0:
+            offset: 539
+            pos: 0
+            size: 6
+            comment: "Number of clocks to be inactive after a burst of pulses has finished.
+                      In this case the generated electrons in the photodiode are drained away
+                      by keeping the photodiode in reset and also pixel modulation signals are
+                      gated to avoid any charge accumulation during these
+                      'dead'times in the pixel tap storage nodes."
+            default: 55
+        dlaser_off_group_f0:
+            offset: 540
+            pos: 0
+            size: 6  # TODO: update when known
+            comment: "Number of remaining MG1/2/3 pulses where the laser is
+                      disabled for f0. Should be a multiple of 3. May be useful
+                      to continue collecting light for a short time after laser
+                      burst ends."
+            default: 15
+        npulse_f1_lo:
+            offset: 541
+            pos: 0
+            size: 8
+            comment: "See npulse_f1_hi. Number of pulses to be generated. It
+                      should be a multiple of 3 in order to have equal amount
+                      of pulses for each of the MG drivers. Each MG will
+                      deliver 1/3 of the total npulse number.
+
+                      Additional info: The number of clock cycles in one burst.
+                      The laser fires for 1/3 of this setting. Bursts
+                      are repeated using inte_burst_length_fx to build
+                      up the desired integration time given the modulation
+                      frequency setting. See get_timing_parameters() in
+                      pleco.py for details on the calculation of this
+                      parameter."
+            default: 23
+        npulse_f1_hi:
+            offset: 542
+            pos: 0
+            size: 4
+            comment: "See npulse_f1_lo. Number of pulses to be generated. It
+                      should be a multiple of 3 in order to have equal amount
+                      of pulses for each of the MG drivers. Each MG will
+                      deliver 1/3 of the total npulse number.
+
+                      Additional info: The number of clock cycles in one burst.
+                      The laser fires for 1/3 of this setting. Bursts
+                      are repeated using inte_burst_length_fx to build
+                      up the desired integration time given the modulation
+                      frequency setting. See get_timing_parameters() in
+                      pleco.py for details on the calculation of this
+                      parameter."
+        dpulse_f1:
+            offset: 543
+            pos: 0
+            size: 6
+            comment: "Number of clocks to be inactive after a burst of pulses has finished.
+                      In this case the generated electrons in the photodiode are drained away
+                      by keeping the photodiode in reset and also pixel modulation signals are
+                      gated to avoid any charge accumulation during these
+                      'dead'times in the pixel tap storage nodes."
+            default: 33
+        dlaser_off_group_f1:
+            offset: 544
+            pos: 0
+            size: 6  # TODO: update when known
+            comment: "Number of remaining MG1/2/3 pulses where the laser is
+                      disabled for f1. Should be a multiple of 3. May be useful
+                      to continue collecting light for a short time after laser
+                      burst ends."
+            default: 15
+        dlay_mg_f0_coarse:
+            offset: 545
+            pos: 4
+            size: 4
+            comment: "Configure delay between on-chip generated laser and
+                      pixel modulation control signals. This can be used to match delay
+                      variations between internal pixel modulation signal and laser signal
+                      routed on PCB as much as possible. i.e. can be used in the end to do global
+                      distance offset correction.
+
+                      Selects the coarse analog delay of the MG line for MF0.
+                      A value over 9 is not allowed.
+                        [7:4] coarse delay selection from 0 to 9 * 650ps"
+        dlay_mg_f0_fine:
+            offset: 545
+            pos: 0
+            size: 4
+            comment: "Configure delay between on-chip generated laser and
+                      pixel modulation control signals. This can be used to match delay
+                      variations between internal pixel modulation signal and laser signal
+                      routed on PCB as much as possible. i.e. can be used in the end to do global
+                      distance offset correction.
+
+                      Selects the fine analog delay of the MG line for MF0.
+                      A value over 9 is not allowed.
+                        [3:0] fine delay selection from 0 to 9 * 170ps"
+            default: 1
+        dlay_laser_f0_coarse:
+            offset: 546
+            pos: 4
+            size: 4
+            comment: "Configure delay between on-chip generated laser and
+                      pixel modulation control signals. This can be used to match delay
+                      variations between internal pixel modulation signal and laser signal
+                      routed on PCB as much as possible. i.e. can be used in the end to do global
+                      distance offset correction.
+
+                      Selects the coarse analog delay of the MG line for MF0.
+                      A value over 9 is not allowed.
+                        [7:4] coarse delay selection from 0 to 9 * 650ps"
+            default: 0
+        dlay_laser_f0_fine:
+            offset: 546
+            pos: 0
+            size: 4
+            comment: "Configure delay between on-chip generated laser and
+                      pixel modulation control signals. This can be used to match delay
+                      variations between internal pixel modulation signal and laser signal
+                      routed on PCB as much as possible. i.e. can be used in the end to do global
+                      distance offset correction.
+
+                      Selects the fine analog delay of the MG line for MF0.
+                      A value over 9 is not allowed.
+                        [3:0] fine delay selection from 0 to 9 * 170ps"
+            default: 0
+        nov_sel_laser_f0_shrink:
+            offset: 547
+            pos: 0
+            size: 3
+            comment: "Duty cycle control of Laser pulse for MF0.
+                        [2:0] pulse shrink by a multiple of ~200ps (typ)
+                      Reason is to have the flexibility to match pixel modulation
+                      control signal as good as possible to the optical VCSEL laser pulse signal"
+            default: 0
+        nov_sel_laser_f0_expand:
+            offset: 547
+            pos: 3
+            size: 3
+            comment: "Duty cycle control of Laser pulse for MF0.
+                        [5:3] pulse expand by a multiple of ~200ps (typ)
+                      Reason is to have the flexibility to match pixel modulation
+                      control signal as good as possible to the optical VCSEL laser pulse signal"
+            default: 0
+        nov_sel_mg_f0_shrink:
+            offset: 548
+            pos: 0
+            size: 3
+            comment: "Duty cycle control of mg pulse for MF0.
+                        [2:0] Pulse shrink by a multiple of ~200ps (typ)"
+        dlay_mg_f1_coarse:
+            offset: 549
+            pos: 4
+            size: 4
+            comment: "Selects the coarse analog delay of the MG line for MF0.
+                      A value over 9 is not allowed.
+                        [7:4] coarse delay selection from 0 to 9 * 650ps"
+            default: 0
+        dlay_mg_f1_fine:
+            offset: 549
+            pos: 0
+            size: 4
+            comment: "Selects the fine analog delay of the MG line for MF0.
+                      A value over 9 is not allowed.
+                        [3:0] fine delay selection from 0 to 9 * 170ps"
+            default: 0
+        dlay_laser_f1_coarse:
+            offset: 550
+            pos: 4
+            size: 4
+            comment: "Selects the coarse analog delay of the MG line for MF0.
+                      A value over 9 is not allowed.
+                        [7:4] coarse delay selection from 0 to 9 * 650ps"
+            default: 0
+        dlay_laser_f1_fine:
+            offset: 550
+            pos: 0
+            size: 4
+            comment: "Selects the fine analog delay of the MG line for MF0.
+                      A value over 9 is not allowed.
+                        [3:0] fine delay selection from 0 to 9 * 170ps"
+            default: 0
+        nov_sel_laser_f1_shrink:
+            offset: 551
+            pos: 0
+            size: 3
+            comment: "Duty cycle control of Laser pulse for MF0.
+                        [2:0] pulse shrink by a multiple of ~200ps (typ)"
+            default: 0
+        nov_sel_laser_f1_expand:
+            offset: 551
+            pos: 3
+            size: 3
+            comment: "TODO confirm this is a valid register like laser.
+                      Duty cycle control of Laser pulse for MF0.
+                        [5:3] pulse expand by a multiple of ~200ps (typ)"
+            default: 0
+        nov_sel_mg_f1_shrink:
+            offset: 552
+            pos: 0
+            size: 3
+            comment: "Duty cycle control of mg pulse for MF1.
+                        [2:0] Pulse shrink by a multiple of ~200ps (typ)"
+            default: 0
+        sync_laser_lvds_mg:
+            offset: 556
+            pos: 0
+            size: 6
+            mnemonic: {"mg0": 21, "mg1": 42, "mg2": 63}
+            comment: "Configures measurement gate with which to synchronize
+                        the laser lvds signal. 21 = MG0, 42 = MG1, 63 = MG2"
+        pll2_div_i:
+            offset: 557
+            pos: 0
+            size: 2
+            mnemonic: {"1/6": 0, "1/4": 1, "1/3": 2, "1/2": 3}
+            comment: "Defaults to 1GHz. Should not be changed.
+                      PLL2 is for pixel modulation"
+            default: 2
+        pll2_div_n_lo:
+            offset: 558
+            pos: 0
+            size: 8
+            comment: "Defaults to 1GHz. Should not be changed.
+                      See pll2_div_n_hi. PLL2 is for pixel modulation.
+                      Valid values for this divider are even numbers
+                      between 126 and 510 inclusive. The value needs
+                      to be split between the lo and hi registers.
+                      WARN the datasheet is incorrect."
+
+            default: 250
+        pll2_div_n_hi:
+            offset: 559
+            pos: 0
+            size: 1
+            comment: "Defaults to 1GHz. Should not be changed.
+                      See pll2_div_n_lo. PLL2 is for pixel modulation.
+                      Valid values for this divider are even numbers
+                      between 126 and 510 inclusive. The value needs
+                      to be split between the lo and hi registers.
+                      WARN the datasheet is incorrect."
+            default: 0
+        pll2_div_b:
+            offset: 560
+            pos: 0
+            size: 2
+            mnemonic: {"1/1": 0, "1/2": 1, "1/4": 2, "1/8": 3}
+            comment: "Defaults to 1GHz. Should not be changed.
+                      PLL2 is for pixel modulation"
+            default: 1
+        # TODO: why is this 2 bits? other DIV_A regs are 1 bit
+        pll2_div_a:
+            offset: 561
+            pos: 0
+            size: 2
+            mnemonic: {"1/8": 0, "1/10": 1}
+            comment: "Defaults to 1GHz. Should not be changed.
+                      0x0: 1/8, 0x1: 1/10"
+            default: 1
+        seq_strt_laser_g1:
+            offset: 566
+            pos: 0
+            size: 2
+            comment: "Selection of laser sequence to be active in the first pulse as described:
+                      For 1st subframe of freq0 or freq1 of a depth frame:
+                      0b11: 3rd pulse
+                      0b10: 2nd pulse
+                      0b01: 1st pulse
+                      0b00: No pulse is generated
+                      TODO I don't quit understand what this means. Does it change which clock
+                      cycle the laser fires on?"
+        seq_strt_laser_g2:
+            offset: 566
+            pos: 2
+            size: 2
+            comment: "Selection of laser sequence to be active in the second pulse as described:
+                      For 2nd subframe of freq0 or freq1 of a depth frame:
+                      0b11: 3rd pulse
+                      0b10: 2nd pulse
+                      0b01: 1st pulse
+                      0b00: No pulse is generated
+                      TODO I don't quit understand what this means. Does it change which clock
+                      cycle the laser fires on?"
+        seq_strt_laser_g3:
+            offset: 566
+            pos: 4
+            size: 2
+            comment: "Selection of laser sequence to be active in the third pulse as described:
+                      For 3rd subframe of freq0 or freq1 of a depth frame:
+                      0b11: 3rd pulse
+                      0b10: 2nd pulse
+                      0b01: 1st pulse
+                      0b00: No pulse is generated
+                      TODO I don't quit understand what this means. Does it change which clock
+                      cycle the laser fires on?"
+        mod_freq0_opt:
+            offset: 567
+            pos: 0
+            size: 3
+            comment: "Modulation frequency MF0
+                        0: SMF0 = fclk_pll2/3MHz
+                        1: SMF0 = fclk_pll2/4MHz
+                        2: SMF0 = fclk_pll2/5MHz
+                        ...
+                        7: SMF0 = fclk_pll2/10MHz"
+            default: 0
+        mod_freq1_opt:
+            offset: 568
+            pos: 0
+            size: 3
+            comment: "Modulation frequency MF1
+                        0: SMF0 = fclk_pll2/3MHz
+                        1: SMF0 = fclk_pll2/4MHz
+                        2: SMF0 = fclk_pll2/5MHz
+                        ...
+                        7: SMF0 = fclk_pll2/10MHz"
+            default: 2
+        mipi_clk_hs_continuous:
+            offset: 569
+            pos: 0
+            size: 1
+            mnemonic: {"yes": 0, "no": 1}
+            comment: "0: CLK_HS continuous,
+                      1: Stop CLK_HS to CMTOP during SEQ_CMTOP idle state.
+                      Also called anti jam disable"
+            default: 1
+        exposure_anitjamming:
+            offset: 569
+            pos: 1
+            size: 1
+            comment: "20210607 He feedback: Set to 1 (Default is 1 so we can leave alone.)
+                      0: DPULSE to CMTOP = REG_DPULSE;
+                      1: DPULSE to CMTOP = REG_DPULSE + random_value(1,2,3)"
+        adc_bits:
+            offset: 576
+            pos: 0
+            size: 8
+            mnemonic: {"10b": 176, "11b": 156}
+            comment: "10 bit: 176, 11-bit: 156"
+            default: 176
+        doff_lo:
+            offset: 578
+            pos: 2
+            size: 6
+            comment: "He feedback 20210527: Offset for the signal.
+                      Y=kx + b, Y is the output , the pga gain&adc gain is
+                      the k and the REG_DOFF is the b."
+            default: 0
+        doff_hi:
+            offset: 579
+            pos: 0
+            size: 8
+            comment: "He feedback 20210527: Offset for the signal.
+                      Y=kx + b, Y is the output , the pga gain&adc gain is
+                      the k and the REG_DOFF is the b."
+            default: 4
+        test_img_en:
+            offset: 580
+            pos: 0
+            size: 1
+            comment: "Enable test pattern mode.
+                      20210607 He feedback: Other bits are for internal
+                      logic and LDO. DO NOT CHANGE"
+            default: 1
+        vramp_st_lo:
+            offset: 585
+            pos: 0
+            size: 8
+            comment: "20210607 He feedback
+                      Set it to recommended value and DO NOT CHANGE.
+                      Its reference voltage setting for RAMP ADC."
+            default: 171
+        vramp_st_hi:
+            offset: 586
+            pos: 0
+            size: 8
+            comment: "20210607 He feedback
+                      Set it to recommended value and DO NOT CHANGE.
+                      Its reference voltage setting for RAMP ADC."
+            default: 44
+        i_ramp_ota:
+            offset: 593
+            pos: 0
+            size: 8
+            comment: "20210607 He feedback
+                      Current setting for the OTA of RAMP.
+                      Set it to recommended value and DO NOT CHANGE."
+        i_ramp_bias:
+            offset: 599
+            pos: 0
+            size: 8
+            comment: "20210607 He feedback: DO NOT CHANGE
+                      Bias enable for RAMP, and parameters for internal LDO.
+                      TODO: pos and size unknown, required for PLECO operation"
+        ldo_ctrl_en:
+            offset: 600
+            pos: 0
+            size: 8
+            comment: "20210607 He feedback: LDO control enable DO NOT CHANGE
+                      TODO: pos and size unknown."
+        vdrn_low:
+            offset: 602
+            pos: 0
+            size: 16
+            comment: "TODO"
+            default: 42835
+        ldo_vsgl1_ctr_in_dg12:
+            offset: 608
+            pos: 0
+            size: 6
+            comment: "20210607 He feedback:
+                      An LDO current setting.
+                      It affects the dark current and our cooperator optimized
+                      this register to get lower dark current.
+                      Please set it to recommended value 244 and DO NOT CHANGE.
+                      TODO What are the other bits? 244 is larger than 6 bits"
+        ldo_vsgl1_diref_in_dg12_lo:
+            offset: 608
+            pos: 6
+            size: 2
+            comment: "20210607 He feedback:
+                      An LDO current setting.
+                      It affects the dark current and our cooperator optimized
+                      this register to get lower dark current.
+                      Please set it to recommended value 244 and DO NOT CHANGE.
+                      TODO What are the other bits? 244 is larger than 6 bits"
+        ldo_vsgl1_diref_in_dg12_hi:
+            offset: 609
+            pos: 0
+            size: 1
+            comment: "20210607 He feedback: An LDO current setting.
+                      Please set it to recommended value 26 and DO NOT CHANGE.
+                      TODO What are the other bits? 26 is larger than 1 bit."
+            default: 52
+        ldo_vsgl2_discff_in_dg12:
+            offset: 611
+            pos: 0
+            size: 1
+            comment: "20210607 He feedback: An LDO current setting.
+                      Please set it to recommended value 90 and DO NOT CHANGE."
+        ldo_vsgl2_lvpmboost_in_dg12:
+            offset: 611
+            pos: 1
+            size: 1
+            comment: "20210607 He feedback: An LDO current setting.
+                      Please set it to recommended value 90 and DO NOT CHANGE."
+        ldo_vsgl2_enbias_in_dg12:
+            offset: 611
+            pos: 2
+            size: 1
+            comment: "20210607 He feedback: An LDO current setting.
+                      Please set it to recommended value 90 and DO NOT CHANGE."
+        ldo_vsgl2_pwsw_in_dg12:
+            offset: 611
+            pos: 3
+            size: 3
+            comment: "20210607 He feedback: An LDO current setting.
+                      Please set it to recommended value 90 and DO NOT CHANGE."
+        pos_drv_en_in_dg12_lo:
+            offset: 611
+            pos: 6
+            size: 2
+            comment: "20210607 He feedback: An LDO current setting.
+                      Please set it to recommended value 90 and DO NOT CHANGE."
+        pos_drv_en_in_dg12_hi:
+            offset: 612
+            pos: 0
+            size: 2
+            comment: "20210607 He feedback: An LDO current setting.
+                      Please set it to recommended value 12 and DO NOT CHANGE."
+        pos_drv2_cp_in_dg12:
+            offset: 612
+            pos: 2
+            size: 1
+            comment: "20210607 He feedback: An LDO current setting.
+                      Please set it to recommended value 12 and DO NOT CHANGE."
+        pos_sel_freq_in_dg12:
+            offset: 612
+            pos: 3
+            size: 4
+            comment: "20210607 He feedback: An LDO current setting.
+                      Please set it to recommended value 12 and DO NOT CHANGE."
+        pos_ldo_ctr_p_in_dg12_lo:
+            offset: 612
+            pos: 7
+            size: 1
+            comment: "20210607 He feedback: An LDO current setting.
+                      Please set it to recommended value 12 and DO NOT CHANGE."
+        pos_ldo_ctr_p_in_dg12:
+            offset: 613
+            pos: 0
+            size: 5
+            comment: "20210607 He feedback: An LDO current setting.
+                      Please set it to recommended value and DO NOT CHANGE."
+        vsg_m_bg_adjust:
+            offset: 632
+            pos: 0
+            size: 8
+            comment: "TODO pos and size unknown, required for PLECO operation"
+            default: 109
+        vtg_m_bg_adjust:
+            offset: 633
+            pos: 0
+            size: 8
+            comment: "TODO pos and size unknown, required for PLECO operation"
+            default: 173
+        pll1_div_i:
+            offset: 634
+            pos: 0
+            size: 2
+            mnemonic: {"1/6": 0, "1/4": 1, "1/3": 2, "1/2": 3}
+            comment: "According to Joris, PLL1 should not be reconfigured
+                      as PLL1 generates the base clock for on-chip SEQUENCER,
+                      ADC and other readout blocks.
+                      00: 1/6, 01: 1/4, 10: 1/3, 11: 1/2"
+            default: 1
+        vdrn_m_bg_adjust:
+            offset: 634
+            pos: 2
+            size: 6
+            comment: "TODO"
+            default: 41
+        pll1_div_n_lo:
+            offset: 635
+            pos: 2
+            size: 6
+            comment: "According to Joris, PLL1 should not be reconfigured
+                      as PLL1 generates the base clock for on-chip SEQUENCER,
+                      ADC and other readout blocks.
+                      See pll1_div_n_hi.
+                      Valid values for this divider are even numbers
+                      between 126 and 510 inclusive"
+            default: 47
+        pll1_div_n_hi:
+            offset: 636
+            pos: 0
+            size: 3
+            comment: "According to Joris, PLL1 should not be reconfigured
+                      as PLL1 generates the base clock for on-chip SEQUENCER,
+                      ADC and other readout blocks.
+                      See pll1_div_n_lo.
+                      Valid values for this divider are even numbers
+                      between 126 and 510 inclusive"
+            default: 1
+        pll1_div_a:
+            offset: 636
+            pos: 3
+            size: 1
+            comment: "According to Joris, PLL1 should not be reconfigured
+                      as PLL1 generates the base clock for on-chip SEQUENCER,
+                      ADC and other readout blocks..
+                      0x0: 1/8, 0x1: 1/10"
+        pll1_div_b:
+            offset: 636
+            pos: 4
+            size: 2
+            mnemonic: {"1/1": 0, "1/2": 1, "1/4": 2, "1/8": 3}
+            comment: "According to Joris, PLL1 should not be reconfigured
+                      as PLL1 generates the base clock for on-chip SEQUENCER,
+                      ADC and other readout blocks.
+                      0x0: 1/1, 0x1: 1/2, 0x2: 1/4, 0x3: 1/8"
+            default: 0
+        # TODO: the mapping doesn't make sense (2 doesn't fit in one bit)
+        af_en:
+            offset: 700
+            pos: 0
+            size: 1
+            comment: "AF mode clock gating enable
+                        1: Clock enable
+                        2: Clock gating"
+            default: 0
+        mipi_en:
+            offset: 701
+            pos: 0
+            size: 1
+            comment: "Normal mode clock gating enable
+                        1: Clock enable
+                        2: Clock gating"
+            default: 1
+        rd_line_max:
+            offset: 702
+            pos: 0
+            size: 16
+            comment: "Mipi read line for one depth frame, include EBD FS FE.
+                      Set to 22 + 6 * num_ROI_lines for DMFD"
+            default: 2892
+        data_pix_num:
+            offset: 704
+            pos: 0
+            size: 8
+            comment: "Mipi read pixel/8 for one line, need < 246 (656*3/8)"
+            default: 239
+        ebd_size_v:
+            offset: 705
+            pos: 0
+            size: 8
+            comment: "EBD = embedded data
+                      0: no EBD
+                      1: EBD line # is 1
+                      2: EBD line # is 2
+                      else: forbidden."
+            default: 5
+        ebd_mode:
+            offset: 706
+            pos: 0
+            size: 3
+            comment: "EBD data mode.
+                        bit[2]
+                            1: EBD line end is different with data
+                            2: EBD line end is the same with data
+                        bit[1:0] - EBD line number
+                            00: 2 line EBD
+                            01: 1 line EBD
+                            10: 0 line EBD
+                            11: reserve"
+            default: 2
+        ebd_line00_lo:
+            offset: 707
+            pos: 0
+            size: 8
+            comment: "Test pattern EBD line subframe 1 line 1, include EBD FS FE"
+        ebd_line00_hi:
+            offset: 708
+            pos: 0
+            size: 8
+            comment: "Test pattern EBD line subframe 1 line 1, include EBD FS FE"
+        ebd_line01_lo:
+            offset: 709
+            pos: 0
+            size: 8
+            comment: "Test pattern EBD line subframe 1 line 2, include EBD FS FE"
+        ebd_line01_hi:
+            offset: 710
+            pos: 0
+            size: 8
+            comment: "Test pattern EBD line subframe 1 line 2, include EBD FS FE"
+        ebd_line10_lo:
+            offset: 711
+            pos: 0
+            size: 8
+            comment: "Test pattern EBD line subframe 2 line 1, include EBD FS FE"
+        ebd_line10_hi:
+            offset: 712
+            pos: 0
+            size: 8
+            comment: "Test pattern EBD line subframe 2 line 1, include EBD FS FE"
+        ebd_line11_lo:
+            offset: 713
+            pos: 0
+            size: 8
+            comment: "Test pattern EBD line subframe 2 line 2, include EBD FS FE"
+        ebd_line11_hi:
+            offset: 714
+            pos: 0
+            size: 8
+            comment: "Test pattern EBD line subframe 2 line 2, include EBD FS FE"
+        ebd_line20_lo:
+            offset: 715
+            pos: 0
+            size: 8
+            comment: "Test pattern EBD line subframe 3 line 1, include EBD FS FE"
+        ebd_line20_hi:
+            offset: 716
+            pos: 0
+            size: 8
+            comment: "Test pattern EBD line subframe 3 line 1, include EBD FS FE"
+        ebd_line21_lo:
+            offset: 717
+            pos: 0
+            size: 8
+            comment: "Test pattern EBD line subframe 3 line 2, include EBD FS FE"
+        ebd_line21_hi:
+            offset: 718
+            pos: 0
+            size: 8
+            comment: "Test pattern EBD line subframe 3 line 2, include EBD FS FE"
+        max_rd_frm:
+            offset: 731
+            pos: 0
+            size: 8
+            comment: "Mipi read depth frame maximal  number"
+        ebd_len_lo:
+            offset: 735
+            pos: 0
+            size: 8
+            comment: "See ebd_len_hi. Mipi read EBD number for one line, need
+                      keep 8'h30 this project"
+            default: 48
+        ebd_len_hi:
+            offset: 736
+            pos: 0
+            size: 8
+            comment: "See ebd_len_lo. Mipi read EBD number for one line, need
+                      keep 8'h30 this project"
+            default: 0
+        crop_mode:
+            offset: 737
+            pos: 0
+            size: 1
+            mnemonic: {"no": 0, "yes": 1}
+            comment: "Crop mode
+                      Updated 20210525 based on He's feedback"
+            default: 0
+        mipi_vld_line:
+            offset: 738
+            pos: 0
+            size: 16
+            comment: "Normal mode DB input valid line start number, start
+                      from 0"
+            default: 0
+        mipi_max_line:
+            offset: 740
+            pos: 0
+            size: 16
+            comment: "Normal mode DB input valid line end number, start from 0"
+            default: 479
+        af_vld_line:
+            offset: 742
+            pos: 0
+            size: 16
+            comment: "AF mode DB input valid line start number, start from 0"
+            default: 0
+        phya_tst_sel:
+            offset: 744
+            pos: 0
+            size: 8
+            comment: "Test Lane select
+                      000: Data lane0
+                      001: Data lane1
+                      010: Data lane2
+                      011: Data lane3
+                      1xx: Clock lane"
+        # TODO: pos and size unknown, required for PLECO operation
+        dphy_p0_tx_time_t_lpx:
+            offset: 745
+            pos: 0
+            size: 6
+            comment: "TODO"
+            default: 10
+        # TODO: pos and size unknown, required for PLECO operation
+        dphy_p0_tx_time_t_clk_prepare:
+            offset: 746
+            pos: 0
+            size: 6
+            comment: "TODO"
+            default: 8
+        # TODO: pos and size unknown, required for PLECO operation
+        dphy_p0_tx_time_t_clk_zero:
+            offset: 747
+            pos: 0
+            size: 7
+            comment: "TODO"
+            default: 52
+        # TODO: pos and size unknown, required for PLECO operation
+        dphy_p0_tx_time_t_clk_pre:
+            offset: 748
+            pos: 0
+            size: 6
+            comment: "TODO"
+            default: 0
+        # TODO: pos and size unknown, required for PLECO operation
+        dphy_p0_tx_time_t_hs_prepare:
+            offset: 749
+            pos: 0
+            size: 6
+            comment: "TODO"
+            default: 9
+        # TODO: pos and size unknown, required for PLECO operation
+        dphy_p0_tx_time_t_hs_zero:
+            offset: 750
+            pos: 0
+            size: 6
+            comment: "TODO"
+            default: 20
+        # TODO: pos and size unknown, required for PLECO operation
+        dphy_p0_tx_time_t_hs_sot:
+            offset: 751
+            pos: 0
+            size: 6
+            comment: "TODO"
+            default: 0
+        # TODO: pos and size unknown, required for PLECO operation
+        dphy_p0_tx_time_t_hs_eot:
+            offset: 752
+            pos: 0
+            size: 6
+            comment: "TODO"
+            default: 12
+        # TODO: pos and size unknown, required for PLECO operation
+        dphy_p0_tx_time_t_clk_eot:
+            offset: 753
+            pos: 0
+            size: 6
+            comment: "TODO"
+            default: 12
+        # TODO: pos and size unknown, required for PLECO operation
+        dphy_p0_tx_time_t_clk_post:
+            offset: 754
+            pos: 0
+            size: 6
+            comment: "TODO"
+            default: 17
+        test_pattern_start:
+            offset: 778
+            pos: 0
+            size: 8
+            comment: "Test pattern generation start
+                      0: Test stop
+                      1: Test start"
+        test_input_pdb_en:
+            offset: 779
+            pos: 0
+            size: 8
+            comment: "Test mode pdb input select
+                      0: Test pattern input
+                      1: Normal input"
+        test_pattern_en:
+            offset: 782
+            pos: 0
+            size: 8
+            comment: "Test mode clock gating enable
+                      1: Clock enable
+                      2: Clock gating"
+        pattern_mode:
+            offset: 783
+            pos: 0
+            size: 8
+            comment: "Value 0-7 sets test pattern"
+        sub_frm_line_num:
+            offset: 784
+            pos: 0
+            size: 16
+            comment: "Mipi read subframe number, start from 0. Set
+                      to num_ROI_lines"
+            default: 480
+        phya_xstb_d3_config:
+            offset: 788
+            pos: 0
+            size: 8
+            comment: "Lane 3 enable
+                      0: disable
+                      1: enable"
+        phya_xstb_d2_config:
+            offset: 789
+            pos: 0
+            size: 8
+            comment: "Lane 2 enable
+                      0: disable
+                      1: enable"

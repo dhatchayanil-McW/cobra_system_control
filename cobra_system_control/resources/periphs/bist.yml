@@ -1,0 +1,278 @@
+#
+bist_start:
+    offset: 0x0000
+    pos: 0
+    size: 3
+    pulsed: True
+    mnemonic: {full: 0x1, single: 0x2, adc: 0x4}
+    comment: "When written, BIST operation starts. In 'single' rail
+              mode, `byte_idx` is the byte excited within the voltage
+              pattern table, corresponding to the target LCM rail. In
+              'full' rail mode, BIST excites bytes from byte_sel = 0
+              to byte_sel = `byte_idx`, inclusive. In 'adc' mode, the
+              controller collects ADC samples and saves them into the
+              FIFO and word 0 of the BIST RAM (lo data point)--there
+              is no manipulation of the LCM."
+bist_adc_sample_window:
+    offset: 0x0001
+    pos: 0
+    size: 8
+    comment: "Sets the duration of the sampling window. A value of
+              zero corresponds to the minimum value of 0.16 us (i.e.
+              4 ADC clock cycles), which is also the step size. This
+              field is used instead of `adc_sample_window` when BIST
+              is operating."
+sample_cnt_tc:
+    offset: 0x0002
+    pos: 0
+    size: &WORD_SIZE 8
+    comment: "The number of samples to collect, divided by 64 and then
+              minus one, for each accumulator. For example, 64 samples
+              are achieved when the field is zero and 2**14 samples are
+              achieved when the field is 0xff."
+fifo_reset:
+    offset: 0x0003
+    pos: 0
+    size: 1
+    comment: "When asserted, the FIFO is held in reset. The BIST
+              controller will function normally but no data will be
+              saved in the FIFO. The FIFO is intended for debug and
+              test."
+byte_idx:
+    offset: 0x0004
+    pos: 0
+    size: 10
+    comment: "In 'single' rail mode, `byte_idx` is the byte excited
+              within the voltage pattern table, corresponding to the
+              target LCM rail. In 'full' rail mode, BIST excites bytes
+              from byte_sel = 0 to byte_sel = `byte_idx`, inclusive."
+lcm_reset_code:
+    offset: 0x0006
+    pos: 0
+    size: 8
+    comment: "The digital DAC code to apply to all rails except the
+              target rail. This field should remain at zero such that
+              all rails are set to VDDAH (9 V)."
+lcm_onehot_code:
+    offset: 0x0007
+    pos: 0
+    size: 8
+    comment: "The digital DAC code to apply to the target rail. This
+              code should correspond to the desired Delta-V."
+lcm_idx:
+    offset: 0x0008
+    pos: 0
+    size: 1
+    comment: "Select the target LCM for BIST."
+sample_cnt_ac_tc:
+    offset: 0x0008
+    pos: 1
+    size: 7
+    comment: "The number of samples to collect, minus one, for the
+              ac/cap accumulator."
+pol_cnt_tc:
+    offset: 0x0009
+    pos: 0
+    size: 2
+    comment: "The number of POL cycles to skip, minus one, after
+              PATTERN_SYNC asserts, before ADC sampling resumes. This
+              field helps avoid sampling of power supply transience,
+              which occurs when patterns are updated."
+inc_mode:
+    offset: 0x0009
+    pos: 2
+    size: 1
+    mnemonic: {down: 0x0, up: 0x1}
+    comment: "For 'full' mode only. Selects the direction of iteration
+              of bytes in the loop."
+monitor_en:
+    offset: 0x0009
+    pos: 3
+    size: 1
+    comment: "Enables automatic BIST execution during scanning. When
+              this bit is asserted, manual execution or use of the
+              BIST controller is not allowed (Bist controller ignores
+              requests)."
+data_sel:
+    offset: 0x0009
+    pos: 4
+    size: 1
+    mnemonic: {short: 0, both: 1}
+    comment: "When 'short' is selected, accum_lo contains the
+              foreground and accum_hi contains the background. When
+              'both' is selected, accum_lo contains the absolute
+              value of the difference of the steady-state foreground
+              and background while accum_hi contains the absolute value
+              of the difference of the transient foreground and
+              background."
+custom_pattern_en:
+    offset: 0x0009
+    pos: 5
+    size: 1
+    comment: "Allows a custom pattern to be used for Bist foreground
+              measurements. Set `tm_bypass_flash` = 1 and
+              `tm_buff_src_idx` = 0/1 to choose the source buffer for the
+              pattern. Set Bist's `reset_code` to control the bias for
+              background measurements. Set byte_idx = 0 (or even number)
+              to sample when POL = 1 (e.g. for odd driver pins) and set
+              byte_idx = 1 (or odd number) to sample when POL = 0 (e.g.
+              for even driver pins). All other fields should function as
+              usual. Start Bist in 'single' rail mode.
+
+              Note: This feature should only be used for 'single' rail
+              mode since the Bist controller doesn't reset the background
+              pattern after each rail iteration. That is, it assumes the
+              last foreground pattern was one-hot and then writes once
+              to get back to all rails being at the reset code. This
+              scheme doesn't work when the last foreground pattern is
+              arbitrary."
+sel_lcm_currs:
+    offset: 0x0009
+    pos: 6
+    size: 1
+    mnemonic: {fine: 0x0, coarse: 0x1}
+    comment: "Selects the LCM current sense measurement for BIST. The coarse
+              value is leveraged as an 'electrical proxy to switching speed'."
+meas_dly_tc:
+    offset: 0x000a
+    pos: 0
+    size: 8
+    comment: "The number of 10-us intervals, minus one, to wait after
+              each POL edge before collecting ADC samples."
+mon_dly_tc:
+    offset: 0x000b
+    pos: 0
+    size: 8
+    comment: "The number of 2.56-ms intervals, minus one, to wait after
+              each BIST execution before the BIST controller requests
+              permission from the scan controller to do another
+              iteration."
+thresh:
+    offset: 0x000c
+    pos: 0
+    size: 24
+    comment: "Threshold used for determining a shorted rail (see
+              `res0_shorted_flag`). If
+                    abs(clip(foreground - background)) >= thresh
+              then the rail is deemed a short. Note that the clip
+              operation converts the difference to a 24-bit value
+              to match the width of this field."
+
+# status
+fifo_rdata:
+    offset: 0x0010
+    pos: 0
+    size: 8
+    pulsed: True
+    access: ro
+    comment: "When this word is read, data is popped from the RX FIFO
+              and returned. Over multiple reads, data is returned in
+              the following order (note that ADC data has a size of
+              14 bits):
+
+                  * sample 0: ADC_DATA[7 : 0]
+                  * sample 0: FLAG, LCM_POL, ADC_DATA[13 : 8]
+                  * sample 1: ADC_DATA[7 : 0]
+                  * sample 1: FLAG, LCM_POL, ADC_DATA[13 : 8]
+                  * etc.
+
+              The FLAG indicates the end of the data stream for a
+              particular run of BIST, as specified by `sample_cnt_tc`.
+              FLAG will be asserted on the last sample."
+fifo_empty:
+    offset: 0x0011
+    pos: 0
+    size: 1
+    access: ro
+    comment: "Indicates whether the FIFO is empty."
+fifo_full:
+    offset: 0x0011
+    pos: 1
+    size: 1
+    access: ro
+    comment: "Indicates whether the FIFO is full. The FIFO has capacity
+              for 1024 words, which is 512 samples."
+bist_busy:
+    offset: 0x0012
+    pos: 0
+    size: 1
+    access: ro
+    comment: "Indicates that BIST is busy, as opposed to done."
+bist_done:
+    offset: 0x0012
+    pos: 1
+    size: 1
+    access: ro
+    comment: "Indicates that BIST is done, and no longer busy."
+error_code:
+    offset: 0x0012
+    pos: 2
+    size: 1
+    access: ro
+    mnemonic: {none: 0x0, tcon_state: 0x1}
+    comment: "Indicates any errors. This field is only valid when
+              `bist_done` is asserted."
+bist_state:
+    offset: 0x0013
+    pos: 0
+    size: 5
+    access: ro
+    mnemonic: {idle: 0,
+               read_tcon_state: 1,
+               check_tcon_state: 2,
+               save_tcon_enable: 3,
+               clear_buff: 4,
+               set_bist_en: 5,
+               enable_tcon: 6,
+               loop_begin: 7,
+               read_ram: 8,
+               rail_set: 9,
+               apply: 10,
+               wait_for_lcm_pattern_sync: 11,
+               wait_for_lcm_pol_hi: 12,
+               wait_for_lcm_pol_lo: 13,
+               adc_prepare: 14,
+               adc_write: 15,
+               adc_wait: 16,
+               adc_save: 17,
+               rail_clear: 18,
+               loop_end: 19,
+               disable_tcon: 20,
+               wait_for_tcon_done: 21,
+               clear_bist_en: 22,
+               restore_tcon_enable: 23,
+               pattern_set: 24,
+               pattern_set_wait: 25}
+    comment: "The current state of the BIST controller."
+accum_adc:
+    offset: 0x0014
+    pos: 0
+    size: 28
+    access: ro
+    comment: "Accumulator for ADC samples."
+rfu_accum_adc:
+    offset: 0x0018
+    pos: 0
+    size: 28
+    access: ro
+    comment: ""
+accum_cnt:
+    offset: 0x001c
+    pos: 0
+    size: 15
+    access: ro
+    comment: "Accumulator count for ADC samples."
+iter_count:
+    offset: 0x001e
+    pos: 0
+    size: 8
+    access: ro
+    comment: "Increments with each execution of a) full mode or
+              b) single mode with byte_idx == 0."
+_last_stat:
+    offset: 0x001f
+    pos: 0
+    size: *WORD_SIZE
+    access: ro
+    comment: "Returns 0. Dummy reg required for verilog macro
+              generation."

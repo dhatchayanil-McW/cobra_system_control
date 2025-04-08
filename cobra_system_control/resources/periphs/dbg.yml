@@ -1,0 +1,154 @@
+#
+scratch_abcdef:
+    offset: 0x0000
+    pos: 0
+    size: 48
+    comment: "An alias for the block for regs scratch_a to scratch_f."
+scratch_a:
+    offset: 0x0000
+    pos: 0
+    size: &WORD_SIZE 8
+    comment: "A dedicated scratch register for testing and debugging."
+scratch_b:
+    offset: 0x0001
+    pos: 0
+    size: *WORD_SIZE
+    comment: "A dedicated scratch register for testing and debugging."
+scratch_c:
+    offset: 0x0002
+    pos: 0
+    size: *WORD_SIZE
+    comment: "A dedicated scratch register for testing and debugging."
+scratch_d:
+    offset: 0x0003
+    pos: 0
+    size: *WORD_SIZE
+    comment: "A dedicated scratch register for testing and debugging."
+scratch_e:
+    offset: 0x0004
+    pos: 0
+    size: *WORD_SIZE
+    comment: "A dedicated scratch register for testing and debugging."
+scratch_f:
+    offset: 0x0005
+    pos: 0
+    size: *WORD_SIZE
+    comment: "A dedicated scratch register for testing and debugging."
+gpio_out:
+    offset: 0x0006
+    pos: 0
+    size: 6
+    comment: "The value to drive on GPIO_USER[5:0] (PCB nets
+              GPIO0-GPIO5) when they are configured as outputs. Bit
+              position 0 corresponds to GPIO_USER[0] (PCB net GPIO0)."
+gpio_out_en:
+    offset: 0x0007
+    pos: 0
+    size: 6
+    comment: "Configures GPIO_USER[5:0] (PCB nets GPIO0-GPIO5) for
+              input, when bit value is zero, or output, when bit value
+              is 1. Bit position 0 corresponds to GPIO_USER[0] (PCB net
+              GPIO0)."
+soft_reset:
+    offset: 0x0008
+    pos: 0
+    size: 1
+    pulsed: True
+    comment: "Global reset for all of the user-space FPGA logic. This
+              signal drives the RSTGEN block."
+dbg_sel:
+    offset: 0x0009
+    pos: 0
+    size: 4
+    comment: "Selects the bundle of signals for the FP_DBG pins that
+              connect to the debug connector. See the docs for
+              available configurations."
+itof_reset_b:
+    offset: 0x0009
+    pos: 4
+    size: 1
+    comment: "Controls the SYS_RST_N_IN18 pin of the Pleco."
+vlda_en:
+    offset: 0x0009
+    pos: 5
+    size: 1
+    comment: "Enables VLDA when high."
+dbg_out_en:
+    offset: 0x0009
+    pos: 6
+    size: 1
+    comment: "When asserted, sets the DBG_PADS to outputs. The pads
+              default to inputs on powerup."
+pcbrev_input_en:
+    offset: 0x0009
+    pos: 7
+    size: 1
+    comment: "When asserted, the select signals to the muxes (analog
+              switches) for the monitor ADC are severed and the PCB
+              version information is read. The version information is
+              available through `pcbrev`. When de-asserted, the analog
+              switches are controlled by the ADC controller IP, as
+              usual."
+
+# status
+git_sha:
+    offset: 0x0010
+    pos: 0
+    size: 32
+    access: ro
+    comment: "The first 8 characters of the Git SHA at which this
+              FPGA configuration was built."
+git_sha_memmap:
+    offset: 0x0014
+    pos: 0
+    size: 32
+    access: ro
+    comment: "The first 8 characters of the cobra_memory_map Git SHA
+              for which this FPGA configuration was built."
+test_pattern:
+    offset: 0x0018
+    pos: 0
+    size: 32
+    access: ro
+    comment: "0x1234_5678"
+project:
+    offset: 0x001c
+    pos: 0
+    size: 4
+    access: ro
+    mnemonic: {m20: 0x1, m25: 0x2, m30: 0x3}
+    comment: "Identifies the FPGA project."
+gpio_in:
+    offset: 0x001d
+    pos: 0
+    size: 6
+    access: ro
+    comment: "The value on the GPIO_USER[5:0] pins (PCB nets
+              GPIO0-GPIO5). When GPIO_USER[5:0] are configured
+              as outputs, this field should match field
+              `gpio_out`."
+gpio_as_dbg:
+    offset: 0x001d
+    pos: 6
+    size: 1
+    access: ro
+    comment: "Indicates that the FPGA was built with some GPIO_USER
+              pins hardwired as debug signals. When this flag is
+              asserted, dbg_out_en controls GPIO_USER[5:2] and
+              DBG_PAD[3:0], which are connected to the GIB debug
+              connector. GPIO_USER[1:0] are not impacted and are
+              controlled by gpio_out_en[1:0] as usual. When this flag
+              is not asserted, dbg_out_en controls only DBG_PAD[3:0]
+              and GPIO_USER[5:0] are controlled by gpio_out_en[5:0]
+              as usual."
+pcbrev:
+    offset: 0x001e
+    pos: 0
+    size: 5
+    access: ro
+    mnemonic: {rev1: 0x1e, rev2: 0x1d}
+    comment: "The PCB version as indicated by pull-down resistors on
+              the FPGA pins that drive the select signals for the
+              muxes (analog switches) for the monitor ADC. The value
+              of this field is only valid when `pcbrev_input_en` is
+              asserted."

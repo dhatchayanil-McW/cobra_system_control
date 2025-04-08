@@ -1,0 +1,117 @@
+#
+spi_control_word:
+    offset: 0x0000
+    pos: 0
+    size: 32
+    pulsed: True
+    comment: "When written, this field causes a SPI transaction to be
+              sent to the DAC device using the provided
+              parameters. The spi_clk_div parameter controls the bus
+              clock frequency as follows:
+                  freq = min(50, 100 / (spi_clk_div + 1)) [MHz].
+
+              <31>    RESERVED (write to zero),
+              <30:28> spi_slave_idx[2:0] (write to zero),
+              <27:24> spi_clk_div[3:0],
+              <23:00> spi_tx_data[23:0]"
+spi_control_word_scan:
+    offset: 0x0004
+    pos: 0
+    size: 32
+    pulsed: True
+    comment: "This field is reserved exclusively for the scan
+              controller. See comments for field `spi_control_word`."
+spi_clk_div_as_freq:
+    offset: 0x0008
+    pos: 0
+    size: 1
+    comment: "When deasserted, the value of spi_clk_div in the control word is
+              a terminal count such that the SPI bus has clock frequency
+
+                freq [MHz] = 100 / (CLK_DIV + 1) if CLK_DIV > 0 else 50 MHz
+
+              When asserted, the value of spi_clk_div in the control word is
+              proportional to frequency such that the SPI bus has clock
+              frequency
+
+                freq [MHz] = 100 / round(100 / (CLK_DIV + 1)) ~= CLK_DIV + 1"
+
+
+# status
+spi_rx_data:
+    offset: 0x0010
+    pos: 0
+    size: 24
+    access: ro
+    comment: "The frame data received from the DAC on MISO. This
+              field is only valid after the controller completes a
+              transaction (see `spi_busy` and `spi_start_req` or
+              `spi_cnt`)."
+spi_cnt:
+    offset: 0x0013
+    pos: 0
+    size: 4
+    access: ro
+    comment: "The number of SPI transactions completed via access to
+              `spi_control_word`. The count wraps back to zero after
+              it reaches its maximum value."
+spi_busy:
+    offset: 0x0013
+    pos: 4
+    size: 1
+    access: ro
+    comment: "Indicates that a SPI transaction, issued via the field
+              `spi_control_word`, is in progress."
+spi_start_req:
+    offset: 0x0013
+    pos: 5
+    size: 1
+    access: ro
+    comment: "Indicates that a SPI transaction, issued via the field
+              `spi_control_word`, is pending."
+spi_busy_global:
+    offset: 0x0013
+    pos: 6
+    size: 1
+    access: ro
+    comment: "Indicates that a SPI transaction, issued via any control
+              word, is pending."
+
+spi_rx_data_scan:
+    offset: 0x0014
+    pos: 0
+    size: 24
+    access: ro
+    comment: "The frame data received from the DAC on MISO. This
+              field is only valid after the controller completes a
+              transaction (see `spi_busy_scan` and
+              `spi_start_req_scan` or `spi_cnt_scan`)."
+spi_cnt_scan:
+    offset: 0x0017
+    pos: 0
+    size: 4
+    access: ro
+    comment: "The number of SPI transactions completed via access to
+              `spi_control_word_scan`. The count wraps back to zero
+              after it reaches its maximum value."
+spi_busy_scan:
+    offset: 0x0017
+    pos: 4
+    size: 1
+    access: ro
+    comment: "Indicates that a SPI transaction, issued via the field
+              `spi_control_word_scan`, is in progress."
+spi_start_req_scan:
+    offset: 0x0017
+    pos: 5
+    size: 1
+    access: ro
+    comment: "Indicates that a SPI transaction, issued via the field
+              `spi_control_word_scan`, is pending."
+spi_busy_global_scan:
+    offset: 0x0017
+    pos: 6
+    size: 1
+    access: ro
+    comment: "Indicates that a SPI transaction, issued via any control
+              word, is pending."

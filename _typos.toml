@@ -1,0 +1,16 @@
+[files]
+extend-exclude = [
+    "unittests/*.py",
+    "bringup_scripts/*.py",
+    "cobra_system_control/resources/*.mcs",
+    "cobra_system_control/resources/*.bin"
+]
+
+[default.extend-words]
+# Don't correct the following constants and variable names
+ba = "ba"
+FOT = "FOT"
+aas = "aas"
+WEL = "WEL"
+dum = "dum"
+requestor = "requestor" 

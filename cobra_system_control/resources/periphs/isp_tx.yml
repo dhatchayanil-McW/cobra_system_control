@@ -1,0 +1,393 @@
+#
+dsi_csi:
+    offset: 0x000
+    pos: 0
+    size: 1
+    comment: "Chooses between PHY IP application, DSI or CSI2
+              0 - CSI2
+              1 - DSI"
+master_slave:
+    offset: 0x000
+    pos: 1
+    size: 1
+    comment: "Selects the PHY IP configuration
+              0 - slave
+              1 - master"
+auto_pd_en:
+    offset: 0x000
+    pos: 2
+    size: 1
+    comment: "Powers down inactive lanes
+              0 - keep powered up at LP11
+              1 - powered down"
+hsel:
+    offset: 0x000
+    pos: 3
+    size: 1
+    comment: "High speed select
+              0 - <= 1.5Gbps
+              1 - > 1.5Gbps"
+rxcdrp:
+    offset: 0x001
+    pos: 2
+    size: 2
+    comment: "LP-CD threshold voltage. Default is 2’b01.
+              Min – 200mV, Max – 450mV"
+required_01:
+    offset: 0x001
+    pos: 0
+    size: 2
+    comment: "Must be 0b00"
+rxlprp:
+    offset: 0x002
+    pos: 0
+    size: 3
+    comment: "Adjust the threshold voltage and hysteresis of LP-RX,
+              default setting 2’b001"
+en_cil:
+    offset: 0x002
+    pos: 3
+    size: 1
+    comment: "Enables or disbles CIL
+              0 - bypassed
+              1 - enabled"
+lock_byp:
+    offset: 0x003
+    pos: 1
+    size: 1
+    comment: "When clock lane exits from ULPS, this input determines if
+              the PLL LOCK signal is used to gate the TxWordClkHS
+              [0] - PLL LOCK gates TxWordClkHS.
+              [1] - PLL LOCK signal does not gate TxWordClkHS clock"
+pll_clk_bypass:
+    offset: 0x003
+    pos: 2
+    size: 1
+    comment: "Bypasses the internal PLL
+              0 - bypassed
+              1 - enabled"
+required_03:
+    offset: 0x003
+    pos: 3
+    size: 1
+    comment: "Must be 0b0"
+required_04:
+    offset: 0x004
+    pos: 0
+    size: 3
+    comment: "Must be 0b000"
+cn_lo:
+    offset: 0x004
+    pos: 3
+    size: 1
+    comment: "LSB of the N parameter of the internal PLL in the
+              equation: Output = M/(N*O). See Table 2.5 for values"
+cn_hi:
+    offset: 0x005
+    pos: 0
+    size: 4
+    comment: "MSB of the N parameter of the internal PLL in the
+              equation: Output = M/(N*O). See Table 2.5 for values"
+cm_lo:
+    offset: 0x006
+    pos: 0
+    size: 4
+    comment: "LSB of the M parameter of the internal PLL in the
+              equation: Output = M/(N*O). See Table 2.5 for values"
+cm_hi:
+    offset: 0x007
+    pos: 0
+    size: 4
+    comment: "MSB of the M parameter of the internal PLL in the
+              equation: Output = M/(N*O). See Table 2.5 for values"
+co:
+    offset: 0x008
+    pos: 0
+    size: 3
+    comment: "The O parameter of the internal PLL in the
+              equation: Output = M/(N*O). See Table 2.5 for values"
+tx_data_width_hs_lo:
+    offset: 0x008
+    pos: 3
+    size: 1
+    comment: "LSB, High speed transmit byte clock
+              2’b00 – 1/8 the HS bit rate
+              2’b01 – 1/16 the HS bit rate
+              2’b10 – 1/32 the HS bit rate"
+tx_data_width_hs_hi:
+    offset: 0x009
+    pos: 0
+    size: 1
+    comment: "MSB, High speed transmit byte clock
+              2’b00 – 1/8 the HS bit rate
+              2’b01 – 1/16 the HS bit rate
+              2’b10 – 1/32 the HS bit rate"
+rx_data_width_hs:
+    offset: 0x009
+    pos: 1
+    size: 2
+    comment: "High-Speed Receive Data Width Select.
+              2’b00 – 1/8 the HS bit rate
+              2’b01 – 1/16 the HS bit rate
+              2’b10 – 1/32 the HS bit rate"
+lane0_sel_lo:
+    offset: 0x009
+    pos: 3
+    size: 1
+    comment: "LSB of lane0_sel. This determines which lane acts as
+              data lane0 in HS Operation mode. Value from 0-3."
+lane0_sel_hi:
+    offset: 0x00a
+    pos: 0
+    size: 1
+    comment: "MSB of lane0_sel. This determines which lane acts as
+              data lane0 in HS Operation mode. Value from 0-3."
+cfg_num_lanes:
+    offset: 0x00a
+    pos: 1
+    size: 2
+    comment: "Sets the number of active lanes. Value from 0-3."
+required_0a:
+    offset: 0x00a
+    pos: 3
+    size: 1
+    comment: "Must be 0b0"
+required_0c:
+    offset: 0x00c
+    pos: 0
+    size: 1
+    comment: "Must be 0b0"
+uc_prg_hs_prepare:
+    offset: 0x00c
+    pos: 1
+    size: 1
+    comment: "T_CLK_PREPARE time in the beginning of
+              highspeed transmission mode. For clock pin.
+              0 – Tperiod of sync_clk_i
+              1 – 1.5*Tperiod of sync_clk_i"
+uc_prg_hs_zero_lo:
+    offset: 0x00c
+    pos: 2
+    size: 2
+    comment: "LSBs of Bits used to program T_CLK_ZERO time in the
+              beginning of high-speed transmission mode. For clock pin.
+              T_CLK_ZERO = (uc_PRG_HS_ZERO+ 4) * (ByteClk Period)"
+uc_prg_hs_zero_mid:
+    offset: 0x00d
+    pos: 0
+    size: 4
+    comment: "MidSBs of Bits used to program T_CLK_ZERO time in the
+              beginning of high-speed transmission mode. For clock pin.
+              T_CLK_ZERO = (uc_PRG_HS_ZERO+ 4) * (ByteClk Period)"
+uc_prg_hs_zero_hi:
+    offset: 0x00e
+    pos: 0
+    size: 1
+    comment: "MSB of Bits used to program T_CLK_ZERO time in the
+              beginning of high-speed transmission mode. For clock pin.
+              T_CLK_ZERO = (uc_PRG_HS_ZERO+ 4) * (ByteClk Period)"
+uc_prg_hs_trail_lo:
+    offset: 0x00e
+    pos: 1
+    size: 3
+    comment: "LSBs of Bits used to program T_HS_TRAIL time in the
+              end of high-speed transmission mode. For clock pin.
+              T_HS_TRAIL = (uc_PRG_HS_TRAIL) * (ByteClk Period)"
+uc_prg_hs_trail_hi:
+    offset: 0x00f
+    pos: 0
+    size: 2
+    comment: "MSBs of Bits used to program T_HS_TRAIL time in the
+              end of high-speed transmission mode. For clock pin.
+              T_HS_TRAIL = (uc_PRG_HS_TRAIL) * (ByteClk Period)"
+required_0f:
+    offset: 0x00f
+    pos: 2
+    size: 2
+    comment: "Must be 0b00"
+u_prg_hs_prepare:
+    offset: 0x011
+    pos: 0
+    size: 2
+    comment: "T_CLK_PREPARE time in the beginning of
+              highspeed transmission mode. For data pin.
+              0 – Tperiod of sync_clk_i
+              1 – 1.5*Tperiod of sync_clk_i
+              2 – 2*Tperiod of sync_clk_i
+              3 – 2.5*Tperiod of sync_clk_i"
+u_prg_hs_zero_lo:
+    offset: 0x011
+    pos: 2
+    size: 2
+    comment: "Bits used to program T_HS_ZERO time in the beginning
+              of high-speed transmission mode. For data pins.
+              T_HS_ZERO =(u_PRG_HS_ZERO + 5 +2M) * (ByteClk Period),
+              where M is the interface width
+              0 – Single Interface
+              1 – Double Interface
+              2 – Quad Interface"
+u_prg_hs_zero_hi:
+    offset: 0x012
+    pos: 0
+    size: 4
+    comment: "Bits used to program T_HS_ZERO time in the beginning
+              of high-speed transmission mode. For data pins.
+              T_HS_ZERO =(u_PRG_HS_ZERO + 5 +2M) * (ByteClk Period),
+              where M is the interface width
+              0 – Single Interface
+              1 – Double Interface
+              2 – Quad Interface"
+u_prg_hs_trail_lo:
+    offset: 0x013
+    pos: 0
+    size: 4
+    comment: "LSBs of Bits used to program T_HS_TRAIL time in the end
+              of high-speed transmission mode. For data pin.
+              T_HS_TRAIL = (u_PRG_HS_TRAIL) * (ByteClk Period)"
+u_prg_hs_trail_hi:
+    offset: 0x014
+    pos: 0
+    size: 2
+    comment: "LSBs of Bits used to program T_HS_TRAIL time in the end
+              of high-speed transmission mode. For data pin.
+              T_HS_TRAIL = (u_PRG_HS_TRAIL) * (ByteClk Period)"
+test_enbl_lo:
+    offset: 0x014
+    pos: 2
+    size: 2
+    comment: "LSBs of six-bit signal that enables testing modes"
+test_enbl_hi:
+    offset: 0x015
+    pos: 0
+    size: 4
+    comment: "MSBs of six-bit signal that enables testing modes"
+
+cont_clk_mode:
+    offset: 0x01e
+    pos: 0
+    size: 1
+    comment: "Enables the slave clock lane to maintain HS reception
+              state during continuous clock mode operation.
+              [0] – Disabled
+              [1] – Enabled"
+required_1e:
+    offset: 0x01e
+    pos: 1
+    size: 1
+    comment: "Must be 0b0"
+tlpx:
+    offset: 0x01f
+    pos: 0
+    size: 8
+    comment: "Duration of any low power state"
+tclk_prep:
+    offset: 0x020
+    pos: 0
+    size: 8
+    comment: "Duration of the LP-00 clock state immediately before
+              the HS-0 clock state in the LP-to-HS sequence"
+tclk_hszero:
+    offset: 0x021
+    pos: 0
+    size: 8
+    comment: "Duration of the clock HS-0 state prior to starting
+              the actual toggling of the high-speed clock"
+tclk_pre:
+    offset: 0x022
+    pos: 0
+    size: 8
+    comment: "Duration of the LP-00 clock state immediately
+              before the HS-0 clock state in the LP-to-HS sequence"
+tclk_post:
+    offset: 0x023
+    pos: 0
+    size: 8
+    comment: "Duration of the HS clock after the last associated
+              Data Lane has transitioned to LP Mode. The interval
+              is defined as the period from the end of tHS-TRAIL
+              to the beginning of tCLKTRAIL"
+tclk_trail:
+    offset: 0x024
+    pos: 0
+    size: 8
+    comment: "Duration of the HS-0 state after the last clock bit
+              of an HS transmission burst"
+tclk_exit:
+    offset: 0x025
+    pos: 0
+    size: 8
+    comment: "Duration of the clock LP-11 state following an
+              HS transmission burst"
+tdat_prep:
+    offset: 0x026
+    pos: 0
+    size: 8
+    comment: "Duration of the LP-00 Line state before the HS-0 Line state"
+tdat_hszero:
+    offset: 0x027
+    pos: 0
+    size: 8
+    comment: "Delay from the LP-00 State to the assertion of the d_hs_rdy_o signal
+              The actual HS-ZERO on the D-PHY data lanes still depends on these
+              three factors:
+                  1. The delay between the d_hs_rdy_o assertion and the time
+                  the requestor sends the payload of a long packet
+                  2. The number of cycles the packet header (if enabled) can
+                  create the sync pattern and the 32-bit header.
+                  This varies with the number of lanes and gearing.
+                  3. The serializer delay. The timing from parallel data
+                  input to the serialized output data differs between soft and
+                  hard D-PHY implementation."
+tdat_trail:
+    offset: 0x028
+    pos: 0
+    size: 8
+    comment: "Duration of the flipped bit after the last
+              payload data bit of an HS transmission burst"
+tdat_exit:
+    offset: 0x029
+    pos: 0
+    size: 8
+    comment: "Duration of the data LP-11 state following an HS transmission burst"
+data_type:
+    offset: 0x02a
+    pos: 0
+    size: 5
+    comment: "6-bit CSI-2 or DSI data type field"
+vc_id:
+    offset: 0x02a
+    pos: 6
+    size: 2
+    comment: "2-bit virtual channel ID of the received packet"
+word_count_lo:
+    offset: 0x02b
+    pos: 0
+    size: 5
+    comment: "LSBs: This denotes the number of bytes in the payload of a
+              long packet. In a short packet, this contains a 2-byte data"
+word_count_hi:
+    offset: 0x02c
+    pos: 0
+    size: 5
+    comment: "MSBs: This denotes the number of bytes in the payload of a
+              long packet. In a short packet, this contains a 2-byte data"
+tskewcal_init_lo:
+    offset: 0x02d
+    pos: 0
+    size: 8
+    comment: "LSBs Duration of Initial Skew Calibration"
+tskewcal_init_hi:
+    offset: 0x02e
+    pos: 0
+    size: 8
+    comment: "MSBs Duration of Initial Skew Calibration"
+tskewcal_period_lo:
+    offset: 0x02f
+    pos: 0
+    size: 8
+    comment: "LSBs Duration of Periodic Skew Calibration"
+tskewcal_period_hi:
+    offset: 0x030
+    pos: 0
+    size: 8
+    comment: "MSBs Duration of Periodic Skew Calibration"

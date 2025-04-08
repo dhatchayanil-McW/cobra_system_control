@@ -1,0 +1,14 @@
+calibration:
+    addr_base: 0x0025_0000
+    n_blocks: 1
+    fields:
+        byte_0:
+            offset: 0x00_0000
+            pos: 0
+            size: *WORD_SIZE
+            comment: "TODO"
+        _last_word_:
+            offset: 0x00_0fff
+            pos: 0
+            size: *WORD_SIZE
+            comment: "TODO"

@@ -1,0 +1,392 @@
+#
+reset:
+    offset: 0x0000
+    pos: 0
+    size: 5
+    pulsed: True
+    mnemonic: {scan_reset: 0x01,
+               fifo_reset: 0x02,
+               params_reset: 0x04,
+               dac_reset: 0x08,
+               itof_reset: 0x10,
+               all_reset: 0x1f}
+    comment: "Resets various components of the Scan peripheral.
+
+              <4>     itof_reset,
+              <3>     dac_reset,
+              <2>     params_reset,
+              <1>     fifo_reset,
+              <0>     scan_reset"
+rfu:
+    offset: 0x0001
+    pos: 0
+    size: 1
+    comment: ""
+scan_halt:
+    offset: 0x0001
+    pos: 1
+    size: 1
+    comment: "Only has an affect in loopback mode. To stop the
+              controller when in loopback mode, reset the FIFO to clear
+              any pending scans and then write this bit to 1."
+scan_loopback:
+    offset: 0x0001
+    pos: 2
+    size: 1
+    comment: "Enables loopback mode. This bit should not be modified
+              while the controller is running."
+scan_hold_at_idle:
+    offset: 0x0001
+    pos: 3
+    size: 1
+    comment: "When in the IDLE state, which is the state after reset,
+              the scan FSM holds there if this bit is asserted."
+scan_lmmi_meta_en:
+    offset: 0x0001
+    pos: 4
+    size: 1
+    mnemonic: {"scan": 0, "cpu": 1}
+    comment: "When asserted, direct CPU R/W access to the metadata buffer
+              is enabled and scan controller access is disabled. When
+              deasserted, scan controller access is enabled and CPU
+              access is disabled. This bit must be zero during scanning."
+scan_ram_addr_msb:
+    offset: 0x0001
+    pos: 5
+    size: 1
+    comment: "Sets the MSB of the address used when the CPU reads or
+              writes the scan parameter memory. This field is necessary
+              because scan parameter memory (see peripheral
+              'scan_params') is too large to be mapped in its entirety
+              using 16-bit addressing. The FPGA logic natively supports
+              the entire scan parameter memory space."
+scan_tstamp_enable:
+    offset: 0x0001
+    pos: 6
+    size: 1
+    comment: "NOT IMPLEMENTED IN M20 DESIGN.
+              When cleared, the servo is off and the PPS signal is
+              ignored. When set, the servo starts counting from the
+              next PPS rising edge."
+fifo_wdata:
+    offset: 0x0002
+    pos: 0
+    size: &WORD_SIZE 8
+    pulsed: True
+    comment: "Writing this word automatically pushes data onto the
+              scan fifo. If the scan controller is idle, writing
+              this word automatically starts the scan controller
+              because the scan controller constantly evaluates
+              the FIFO's empty flag while it is idle. It takes four
+              writes to start a scan and, in general, the user should
+              always write four words at a time to this FIFO. The
+              first/last word corresponds to <0>/<3> as follows:
+
+              <3>  stop_ptr[9:8],
+              <2>  stop_ptr[7:0],
+              <1>  start_ptr[9:8],
+              <0>  start_ptr[7:0]"
+dac_ci_settle_tc:
+    offset: 0x0003
+    pos: 0
+    size: *WORD_SIZE
+    comment: "Defines the settling time, in 0.16 us steps, for the CI
+              DAC path. After issuing the DAC data word to the DAC_SPI
+              controller, the scan controller waits for this settle
+              count to expire before triggering the scan."
+fifo_ren_override:
+    offset: 0x0007
+    pos: 0
+    size: 1
+    pulsed: True
+    comment: "When written, the scan FIFO is read (popped). The data
+              is visible from the status field `fifo_rdata`."
+params_roi_sel_override:
+    offset: 0x0008
+    pos: 0
+    size: 10
+    pulsed: True
+    comment: "When written, a readout of the scan parameter memory is
+              initiated using the provided ROI pointer."
+dac_ci_dig_override:
+    offset: 0x000a
+    pos: 0
+    size: 12
+    pulsed: True
+    comment: "When written, the provided DAC digital word is sent to
+              the external DAC device via SPI."
+itof_txfer_start_override:
+    offset: 0x000c
+    pos: 0
+    size: 1
+    pulsed: True
+    comment: "When written, the current scan parameters are transferred
+              from the FPGA to the ITOF over SPI. The user may control
+              which parameters are currently loaded (and hence sent)
+              via the field `params_roi_sel_override`."
+tstamp_trigger_ext_en:
+    offset: 0x000d
+    pos: 2
+    size: 1
+    comment: "NOT IMPLEMENTED IN M20 DESIGN.
+              When asserted, the TRIG_IN input to the sensor head PCB
+              will cause timestamps to be captured from the PPS servo.
+              The timestamps are readable through the memory map. This
+              feature is for testing purposes only."
+tstamp_sync_aux_en:
+    offset: 0x000d
+    pos: 3
+    size: 1
+    comment: "NOT IMPLEMENTED IN M20 DESIGN.
+              This field enables a fallback feature in case PPS
+              generation on the compute isn't available (e.g. when
+              using the Jetson). When asserted, the FPGA generates a
+              25 MHz signal for the PPS servo, in lieu of the external
+              PPS source. As a result, TSTAMP_COARSE will increment
+              every 40 ns and TSTAMP_FINE will be invalid."
+tm_start:
+    offset: 0x000e
+    pos: 0
+    size: 10
+    pulsed: True
+    comment: "This field should only be used for test and debug. During
+              normal operation, the Table Mover is controlled by the
+              scan controller. When this field is written, the Table
+              Mover transfers a voltage pattern from SPI Flash into the
+              LCM voltage pattern buffer. The voltage pattern is
+              selected with the `tm_table_idx` field and the ping-pong
+              destination buffer is selected with the `tm_bram_idx`
+              field. Since two LCMs are supported, the LCM is selected
+              with the `tm_lcm_idx` field. This field is an alias for
+              the three aforementioned fields."
+tm_table_idx:
+    offset: 0x000e
+    pos: 0
+    size: 9
+    comment: "This field should only be used for test and debug. During
+              normal operation, the Table Mover is controlled by the
+              scan controller. This field selects the voltage pattern
+              to move from SPI Flash into the LCM IP's voltage pattern
+              buffer. A voltage pattern is 1024 bytes. Valid values for
+              this field are 0 to 2047. This field is only provided to
+              describe the data packing for accesses to the `tm_start`
+              field. Use `tm_start`, not this field, to access the
+              hardware."
+tm_bram_idx:
+    offset: 0x000f
+    pos: 1
+    size: 1
+    comment: "This field should only be used for test and debug. During
+              normal operation, the Table Mover is controlled by the
+              scan controller. This field selects the destination buffer
+              in the LCM IP for a Table Mover transfer. The LCM IP
+              has two buffers for ping-ponging. Valid values for this
+              field are 0 (bottom) and 1 (top). This buffer index
+              corresponds with the indices of `apply0` and `apply1`
+              fields as well as the `tcon_loading` field. This field is
+              only provided to describe the data packing for accesses to
+              the `tm_start` field. Use `tm_start`, not this field, to
+              access the hardware."
+rowcal_adjust_en:
+    offset: 0x0010
+    pos: 0
+    size: 1
+    comment: "When asserted, the scan controller will adjust the
+              starting row of the TOF (rwin0_s) according to the laser
+              temperature reading from the monitor ADC and the ROWCAL
+              RAM contents."
+rowcal_temp_ovr_en:
+    offset: 0x0010
+    pos: 1
+    size: 1
+    comment: "When asserted, `rowcal_temp_ovr` is used instead of the
+              laser temperature reading from the monitor ADC while
+              determining the adjustment to the TOF starting row.
+              Together with the ROWCAL RAM, this field enables
+              deterministic selection of the starting row for debug and
+              test purposes."
+rowcal_temp_ovr:
+    offset: 0x0011
+    pos: 0
+    size: 8
+    comment: "See `rowcal_temp_ovr_en`."
+
+# status
+scan_state:
+    offset: 0x0018
+    pos: 0
+    size: 16
+    access: ro
+    mnemonic: {idle: 0x0001,
+               fifo_pop_sptr_l: 0x0002,
+               fifo_pop_sptr_h: 0x0004,
+               fifo_pop_pptr_l: 0x0008,
+               fifo_pop_pptr_h: 0x0010,
+               fifo_read: 0x0020,
+               params_fetch: 0x0040,
+               params_read: 0x0080,
+               init_periphs: 0x0100,
+               wait_periphs: 0x0200,
+               roi_begin: 0x0400,
+               roi_timer: 0x0800,
+               fork: 0x1000,
+               roi_end: 0x2000,
+               scan_end: 0x4000}
+    comment: "The current state of the scan controller."
+tm_done:
+    offset: 0x001a
+    pos: 0
+    size: 1
+    access: ro
+    comment: "Indicates the Table Mover is done, as opposed to busy."
+tm_busy:
+    offset: 0x001a
+    pos: 1
+    size: 1
+    access: ro
+    comment: "Indicates the Table Mover is busy, as opposed to done."
+itof_txfer_done:
+    offset: 0x001a
+    pos: 2
+    size: 1
+    access: ro
+    comment: "Indicates whether the ITOF SPI transfer is done."
+itof_txfer_busy:
+    offset: 0x001a
+    pos: 3
+    size: 1
+    access: ro
+    comment: "Indicates whether the ITOF SPI transfer is busy."
+dac_ci_settle_done:
+    offset: 0x001a
+    pos: 4
+    size: 1
+    access: ro
+    comment: "Indicates whether the DAC settling time has expired."
+dac_ci_settle_busy:
+    offset: 0x001a
+    pos: 5
+    size: 1
+    access: ro
+    comment: "Indicates whether the DAC settling time counter is busy."
+params_read_done:
+    offset: 0x001a
+    pos: 6
+    size: 1
+    access: ro
+    comment: "Indicates whether the ROI parameter readout is done."
+params_read_busy:
+    offset: 0x001a
+    pos: 7
+    size: 1
+    access: ro
+    comment: "Indicates whether the ROI parameter readout is busy."
+scan_is_idle:
+    offset: 0x001b
+    pos: 0
+    size: 1
+    access: ro
+    comment: "Asserted when the scan controller is in STATE_IDLE and
+              the scan FIFO is empty; otherwise, cleared. This flag
+              serves as a single point of reference for evaluating the
+              combined state of the controller and FIFO since,
+              otherwise, separate queries will occur at different times
+              and not be synchronous."
+scan_first_roi:
+    offset: 0x001b
+    pos: 1
+    size: 1
+    access: ro
+    comment: "Indicates that this is the first ROI in the current
+              pointer set."
+scan_last_roi:
+    offset: 0x001b
+    pos: 2
+    size: 1
+    access: ro
+    comment: "Indicates that this is the last ROI in the current
+              pointer set. This flag persists after scanning."
+scan_roi_cnt:
+    offset: 0x001c
+    pos: 0
+    size: 16
+    access: ro
+    comment: "A counter that increments at the end of each ROI. To
+              reset the counter, stop the scan controller and then
+              reset it with the `scan_reset` field. Note that the
+              LSBs of this field are mapped to metadata."
+scan_params_roi_sel:
+    offset: 0x001e
+    pos: 0
+    size: 10
+    access: ro
+    comment: "The current value of the ROI pointer into the scan
+              parameter memory."
+param_roi_id:
+    offset: 0x0020
+    pos: 0
+    size: 12
+    access: ro
+    comment: "The current value of the scan parameter ROI_ID."
+param_dac_ci:
+    offset: 0x0022
+    pos: 0
+    size: 12
+    access: ro
+    comment: "The current value of the scan parameter DAC_CI."
+fifo_rdata:
+    offset: 0x0024
+    pos: 0
+    size: 8
+    access: ro
+    comment: "The most recent data that has been read from the scan
+              FIFO. This field has the same format as the written
+              data."
+fifo_empty:
+    offset: 0x0025
+    pos: 0
+    size: 1
+    access: ro
+    comment: "Indicates whether the scan FIFO is empty."
+fifo_watermark:
+    offset: 0x0025
+    pos: 1
+    size: 1
+    access: ro
+    comment: "Indicates whether the scan FIFO has at least four
+              items, which corresponds to a single full description
+              of a scan."
+fifo_full:
+    offset: 0x0025
+    pos: 2
+    size: 1
+    access: ro
+    comment: "Indicates whether the scan FIFO is full. The FIFO has a
+              capacity for 8 items and this field indicates that there
+              are 8 items currently in the FIFO."
+fifo_count:
+    offset: 0x0025
+    pos: 3
+    size: 4
+    access: ro
+    comment: "Indicates the number of items currently in the scan
+              FIFO. The FIFO has a capacity for 8 items."
+# 0x026
+# 0x027
+tstamp_fine:
+    offset: 0x0028
+    pos: 0
+    size: 32
+    access: ro
+    comment: "NOT IMPLEMENTED IN M20 DESIGN.
+              The current value of the fine time stamp. Units are 10-ns
+              or 1e-8 seconds."
+tstamp_coarse:
+    offset: 0x002c
+    pos: 0
+    size: 32
+    access: ro
+    comment: "NOT IMPLEMENTED IN M20 DESIGN.
+              The current value of the coarse time stamp. Units are in
+              cycles of the PPS sync source (nominally 1 second). Only
+              the bottom 32 bits are mapped here."

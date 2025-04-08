@@ -1,0 +1,376 @@
+#
+tcon_enable:
+    offset: 0x0000
+    pos: 0
+    size: 1
+    comment: "Enables the TCON. From the IDLE state, the TCON will
+              run the init sequence and then wait in the DONE state.
+              While running, setting enable low will cause the TCON to
+              run the finish sequence and then wait in the DONE state."
+tcon_pol_cnt_mode:
+    offset: 0x0001
+    pos: 0
+    size: 2
+    mnemonic: {'exact': 0x0, 'max': 0x1, 'min': 0x2, 'null': 0x3}
+    comment: "A value sampled with each apply request. This field 1) selects
+              the interpretation of `tcon_pol_cnt_tc` and 2) controls when
+              apply requests are handled, as follows:
+
+              * exact: tcon_pol_cnt_mode is treated as an exact number of POL
+              cycles. Apply requests received prior to the completion of the
+              specified number of POL cycles are cached by the TCON and
+              applied after all POL cycles complete. If no request arrives
+              before POL cycle completion then the TCON runs the finish
+              sequence and then waits in the DONE state (i.e. shuts down).
+
+              * max: tcon_pol_cnt_mode is treated as a maximum number of POL
+              cycles. Apply requests are handled as soon as possible. If no
+              request arrives before POL cycle completion then the TCON runs
+              the finish sequence and then waits in the DONE state (i.e. shuts
+              down).
+
+              * min: tcon_pol_cnt_mode is treated as a minimum number of POL
+              cycles. Apply requests received prior to the completion of the
+              specified number of POL cycles are cached by the TCON and applied
+              after all POL cycles complete. If no request arrives before POL
+              cycle completion then the TCON keeps running and will process the
+              next apply request as soon as it arrives.
+
+              * null: tcon_pol_cnt_mode is ignored. The TCON runs until it
+              receives an apply request, which it handles as soon as possible.
+
+              In all cases, deasserting `tcon_enable` will cause the TCON
+              to shutdown as soon as possible."
+apply0:
+    offset: 0x0002
+    pos: 0
+    size: 1
+    pulsed: True
+    comment: "This field is for debug use (and BIST use) only. During
+              normal operation, the TCON is controlled by the scan
+              controller. When this field is written, an apply request
+              is sent to the TCON, which is a request to program the
+              LCD driver with data from the indicated buffer (0).
+              The TCON does not immediately process apply
+              requests and it can accept only one apply request at a
+              time. The user must query pending apply requests via the
+              `apply_cache` field before issuing further apply
+              requests."
+apply1:
+    offset: 0x0003
+    pos: 0
+    size: 1
+    pulsed: True
+    comment: "This field is for debug use (and BIST use) only. During
+              normal operation, the TCON is controlled by the scan
+              controller. When this field is written, an apply request
+              is sent to the TCON, which is a request to program the
+              LCD driver with data from the indicated buffer (1).
+              The TCON does not immediately process apply
+              requests and it can accept only one apply request at a
+              time. The user must query pending apply requests via the
+              `apply_cache` field before issuing further apply
+              requests."
+tp1_period:
+    offset: 0x0004
+    pos: 0
+    size: 16
+    comment: "This field is for debug use (and BIST use) only. During
+              normal operation, the TCON is controlled by the scan
+              controller. This field sets the period of TP1 in units of
+              0.01 us steps. The expression to map this field to a real
+              TP1 period in microseconds is
+                  (1 * (tp1_period + 1) + tp1_pw + 4) / clk_freq(MHz).
+              For example, a TP1 period of 20.53 us is achieved with a
+              value of 1999 assuming a 100 MHz system clock and
+              tp1_pw = 49. This field is sampled by the TCON when it
+              receives an apply request."
+settle_tc:
+    offset: 0x0006
+    pos: 0
+    size: 16
+    comment: "Sets the LCM settling time, in units of 0.01 us steps.
+              The scan controller evaluates the status of
+              the settling time timer during scanning so this field
+              should not be changed while the scan controller is
+              running. The value of this field must be less than the
+              value of the `tp1_period` field. The expression to map
+              this field to a real time in microseconds is
+                  1 * (settle_tc + 1) / clk_freq(MHz).
+              For example, a settling time of 30.0 us is achieved
+              with a value of 2999 assuming a 100 MHz system clock. The
+              settling time is measured relative to the falling edge
+              of TP1 period after a new voltage pattern is applied to
+              the LCM."
+aux_code_even:
+    offset: 0x0008
+    pos: 0
+    size: 8
+    comment: "The digital DAC code that corresponds to LCD driver pin
+              OUT1026 (i.e. the last channel). The value of this field
+              is applied globally for all patterns since the pattern
+              tables only have capacity for the first 1024 channels."
+aux_code_odd:
+    offset: 0x0009
+    pos: 0
+    size: 8
+    comment: "The digital DAC code that corresponds to LCD driver pin
+              OUT1025 (i.e. the pentultimate channel). The value of
+              this field is applied globally for all patterns since
+              the pattern tables only have capacity for the first 1024
+              channels."
+tcon_pol_cnt_tc:
+    offset: 0x000a
+    pos: 0
+    size: 8
+    comment: "A value sampled with each apply request. The interpretation of
+              this value depends on the field `tcon_pol_cnt_mode`. See field
+              `tcon_pol_cnt_mode` for more info. This field should be
+              programmed to the desired value, minus one."
+gpio_pwr_en:
+    offset: 0x000b
+    pos: 0
+    size: 1
+    comment: "Sets the FPGA pin level for schematic signal
+              LCM_PWR_EN_FP_*."
+gpio_ito_en:
+    offset: 0x000c
+    pos: 0
+    size: 1
+    comment: "Sets the FPGA pin level for schematic signal
+              ITO_EN."
+gpio_ito_select:
+    offset: 0x000c
+    pos: 1
+    size: 1
+    mnemonic: {manual: 1, dynamic: 0}
+    comment: "Selects the source for the ITO_EN FPGA pin. When
+              asserted, ITO_EN is manually controlled via `gpio_ito_en`.
+              Otherwise, ITO_EN is dynamically controlled by the LCM
+              TCON (i.e. asserted with PATTERN_SYNC and cleared when
+              restoring the 9V reset pattern)."
+#
+#offset: 0x000d
+#
+ito_phase_tc:
+    offset: 0x000e
+    pos: 0
+    size: 16
+    comment: "For each application (apply) of the LCM pattern buffer,
+              this field sets the phase (i.e. the time to the first
+              transition of) the ITO signal. Units are in 0.01 us per
+              step. See also `ito_toggle_tc`."
+ito_toggle_tc:
+    offset: 0x0010
+    pos: 0
+    size: 16
+    comment: "For each application (apply) of the LCM pattern buffer,
+              this field sets the period (actually half-period) of
+              the ITO signal. Units are in 0.01 us per step. See also
+              `ito_phase_tc`."
+
+tcon_reset:
+    offset: 0x0018
+    pos: 0
+    size: 1
+    comment: "This field is for debug use only. This field
+              resets the timing controller (TCON) and Mini-LVDS
+              (mlvds) transmitter. Reset is necessary to move from
+              the TCON DONE state to the TCON IDLE state."
+bist_en:
+    offset: 0x0019
+    pos: 0
+    size: 1
+    comment: "When asserted, several registers are overridden with
+              fixed values that facilitate BIST operation. This field
+              should not be changed by the user."
+reset_code:
+    offset: 0x001a
+    pos: 0
+    size: 8
+    comment: "This field only has an effect during debug mode.
+              The digital DAC code to apply to all channels before
+              entering the DONE state (i.e. during the init sequence
+              and during the finish sequence). This field should
+              remain at zero such that all rails are set to
+              VDDAH (9 V)."
+pol_finish_ovr:
+    offset: 0x001b
+    pos: 0
+    size: 1
+    comment: "This field is for debug use only.
+              Sets the value of POL during the TCON's finish sequence
+              (pairs with the `reset_code` field). This field should
+              remain at zero such that POL operates normally."
+pol_ovr_en:
+    offset: 0x001b
+    pos: 1
+    size: 1
+    comment: "This field is for debug use only.
+              Enables overriding of the POL signal during normal
+              operation to a constant value defined by the
+              `pol_ovr_val` field. This field should be used with care
+              because POL will no longer ensure zero DC bias to the
+              LCs. The fields `pol_ovr_en` and `pol_ovr_val` do not
+              have an effect on POL during the init or finish
+              sequences."
+pol_ovr_val:
+    offset: 0x001b
+    pos: 2
+    size: 1
+    comment: "This field is for debug use only.
+              When `pol_ovr_en` is asserted, this field sets the value
+              that is statically applied to POL during normal
+              operation. This field should be used with care because
+              POL will no longer ensure zero DC bias to the LCs. The
+              fields `pol_ovr_en` and `pol_ovr_val` do not have an
+              effect on POL during the init or finish sequences."
+pol_toggle:
+    offset: 0x001b
+    pos: 3
+    size: 1
+    comment: "This field is for debug use only.
+              When enabled, POL is fixed during normal operation
+              (though POL toggles normally during the finish sequence).
+              The polarity of POL will change with each apply request
+              from the DONE state. Thus, this flag allows POL flipping
+              to be done on a longer time scale, instead of with each
+              TP1 period, which is the behavior when this field is
+              zero. This field should only be used when
+              `tcon_pol_cnt_mode` is in 'exact' or 'max' mode, and only
+              for small values of `tcon_pol_cnt_tc` to avoid long periods
+              of time without polarity inversions. Ensuring a zero DC bias
+              from steering angle to steering angle is deferred to the user
+              application. Be warned."
+pol_invert:
+    offset: 0x001b
+    pos: 4
+    size: 1
+    comment: "This field is intended for use with the new driver
+              (HX8157-R70) and causes the POL signal to invert at
+              the pad boundary. This is necessary because the new
+              driver applies the opposite VDD (gamma) ranges compared
+              to the old driver, given a fixed value of POL."
+tp1_done_high:
+    offset: 0x001c
+    pos: 0
+    size: 1
+    comment: "This field is for debug use only.
+              Controls the behavior of TP1 in the DONE state. This
+              field should remain at zero such that TP1 deasserts
+              before the DONE state and the LCD driver's outputs are
+              actively on. When this field is asserted, TP1 is left
+              high in the DONE state and the LCD driver output's are
+              high-impedance."
+prog_trigger_mode:
+    offset: 0x001d
+    pos: 0
+    size: 1
+    mnemonic: {toggle: 0, pulse: 1}
+    comment: "This field name is deprecated and included for backwards
+              compatibility reasons only. This field is an alias for
+              `pattern_sync_mode`."
+pattern_sync_mode:
+    offset: 0x001d
+    pos: 0
+    size: 1
+    mnemonic: {toggle: 0, pulse: 1}
+    comment: "Sets the mode of operation for the PATTERN_SYNC signal,
+              which is available via the debug connector mux. A value
+              of zero enables toggle mode: PATTERN_SYNC will toggle on
+              the positive edge of TP1 when a new steering pattern is
+              applied. A value of one enables pulse mode: PATTERN_SYNC
+              will rise on the positive edge of TP1 when a new steering
+              pattern is applied and will fall on the following TP1
+              rising edge."
+n_steps:
+    offset: 0x001e
+    pos: 0
+    size: 8
+    comment: "This field is for debug use only.
+              The number of steps in the LCD programming cycle, minus
+              one. Typically, the value is 170 (0xaa), which
+              corresponds to 1026 LCD channels divided by 6 LVDS
+              lanes."
+rst_pw:
+    offset: 0x001f
+    pos: 0
+    size: 4
+    comment: "This field is for debug use only.
+              The width of the Mini-LVDS RST pulse in LVDS_CLK_P
+              cycles, minus one. Typically, the value is set to 4,
+              which corresponds to 5 cycles (50 ns)."
+tx_wait:
+    offset: 0x001f
+    pos: 4
+    size: 4
+    comment: "This field is for debug use only.
+              The time to wait, in LVDS_CLK_P cycles minus one, between
+              transmitting the last Mini-LVDS data and returning a done
+              signal back to the timing controller (TCON). Typically,
+              the value is 7, which ensures at least 11 cycles between
+              1) the LVDS_CLK_P edge of the last transmitted bit and
+              2) the positive edge of TP1."
+
+# status
+clk_freq:
+    offset: 0x0020
+    pos: 0
+    size: &WORD_SIZE 8
+    access: ro
+    comment: "This field returns the LCM IP's clock frequency, in MHz.
+              It facilitates mapping between real time values and
+              digital words, e.g. for TP1_PERIOD. The returned value
+              is 100 (MHz)."
+tcon_state:
+    offset: 0x0021
+    pos: 0
+    size: 5
+    access: ro
+    mnemonic: {idle: 0x0,
+               init_tp1_1h: 0x1,
+               init_tp1_1l: 0x2,
+               init_tp1_2h: 0x3,
+               init_tp1_2l: 0x4,
+               init_tp1_3h: 0x5,
+               init_prog: 0x6,
+               init_tp1_4h: 0x7,
+               done: 0x8,
+               prog: 0x9,
+               wait: 0xa,
+               pol: 0xb,
+               tp1: 0xc,
+               prog_fin: 0xd,
+               wait_fin: 0xe,
+               pol_fin: 0xf,
+               tp1_fin: 0x10,
+               tp1_5h: 0x11}
+    comment: "Indicates the current state of the LCM controller."
+apply_cache:
+    offset: 0x0022
+    pos: 0
+    size: 2
+    access: ro
+    comment: "Indicates pending apply requests. This field will always
+              be zero or one-hot because the TCON can only process one
+              apply request at a time. The user must query pending
+              apply requests via this field before issuing further
+              apply requests. If the user issues an apply request when
+              one is already queued, the TCON will ignore the request."
+loading:
+    offset: 0x0022
+    pos: 2
+    size: 2
+    access: ro
+    comment: "Indicates that the corresponding voltage pattern buffer
+              is currently being read by the Mini-LVDS transmitter and
+              transmitted to the LCD driver. The user must not write
+              (i.e. do a Table Move transfer) to a BRAM buffer while
+              it is being read out. This field corresponds to the
+              TCON's PROG state."
+settle_done:
+    offset: 0x0022
+    pos: 4
+    size: 1
+    access: ro
+    comment: "Indicates whether the LCM settling time has expired."

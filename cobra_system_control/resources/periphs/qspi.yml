@@ -1,0 +1,104 @@
+#
+reset:
+    offset: 0x0000
+    pos: 0
+    size: 3
+    pulsed: True
+    mnemonic: {fifo_tx_reset: 0x1,
+               fifo_rx_reset: 0x2,
+               spi_controller_reset: 0x4,
+               all_reset: 0x7}
+    comment: "Resets various components of the peripheral."
+fifo_tx_release:
+    offset: 0x0001
+    pos: 0
+    size: 1
+    comment: "Unblocks the read port of the TX FIFO for the QSPI
+              controller so it can pop data."
+fifo_loopback:
+    offset: 0x0001
+    pos: 1
+    size: 1
+    comment: "Causes the TX FIFO to loopback to the RX FIFO for debug
+              purposes. Set `fifo_tx_release` low and then enable
+              loopback mode to begin automatic popping whenever the
+              TX FIFO is not empty. The user may fill TX FIFO before
+              enabling loopback mode."
+fifo_tx_wdata:
+    offset: 0x0002
+    pos: 0
+    size: &WORD_SIZE 8
+    pulsed: True
+    comment: "When this word is written, the data is pushed onto the
+              TX FIFO."
+
+# status
+fifo_rx_rdata:
+    offset: 0x0004
+    pos: 0
+    size: *WORD_SIZE
+    pulsed: True
+    access: ro
+    comment: "When this word is read, data is popped from the RX FIFO
+              and returned."
+fifo_tx_full:
+    offset: 0x0005
+    pos: 0
+    size: 1
+    access: ro
+    comment: "Indicates whether the TX FIFO is full. The FIFO has
+              capacity for 15 words."
+fifo_tx_empty:
+    offset: 0x0005
+    pos: 1
+    size: 1
+    access: ro
+    comment: "Indicates whether the TX FIFO is empty."
+fifo_rx_full:
+    offset: 0x0005
+    pos: 2
+    size: 1
+    access: ro
+    comment: "Indicates whether the RX FIFO is full. The FIFO has
+              capacity for 2048 words."
+fifo_rx_empty:
+    offset: 0x0005
+    pos: 3
+    size: 1
+    access: ro
+    comment: "Indicates whether the RX FIFO is empty."
+spi_cnt:
+    offset: 0x0006
+    pos: 0
+    size: 4
+    access: ro
+    comment: "The number of SPI transactions completed via CPU access
+              (not LCM controller access). The count wraps back to zero
+              after it reaches its maximum value."
+spi_busy:
+    offset: 0x0006
+    pos: 4
+    size: 1
+    access: ro
+    comment: "Indicates that a SPI transaction in in progress (includes
+              both transactions issued by the CPU and by the LCM
+              controller)."
+spi_error:
+    offset: 0x0006
+    pos: 5
+    size: 1
+    access: ro
+    comment: "Indicates that a SPI transaction was attempted with an
+              unsupported command code. The controller didn't send any
+              traffic on the bus and raised this flag as a result.
+              Furthermore, no more traffic will be sent (though the
+              LCM controller can still access the bus) until this flag
+              is cleared, which can be done using the
+              'spi_controller_reset' mnemonic in the `reset` field."
+spi_cmd:
+    offset: 0x0007
+    pos: 0
+    size: 8
+    access: ro
+    comment: "Indicates the QSPI command code for the most recently
+              completed transaction that was issued by the CPU."

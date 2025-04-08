@@ -1,0 +1,681 @@
+#
+# file: metadata_map.yml
+#
+# Copyright (C) 2023 Lumotive, Inc. All rights reserved.
+#
+# This files defines the RAM start location for the dyamic, static,
+# and per-Virtual-Sensor metadata (virtual_sensor_<n>).
+#
+# The commented lines after the virtual_sensor_7 data defines the metadata line
+# that is prepended to ROI data MIPI frame. The offsets are 16-bit pixel
+# offsets. The metadata lives in the 12 MSBs.
+#
+# Bytes [0, 60) or RAW12 fields [0, 40) are dynamically populated from
+# scan parameter memory or other dynamic signals during scanning.
+# The remainder of the memory, up to and including byte 2879 (RAW12
+# field 1919), are available to the firmware for arbitrary population
+# of MIPI metadata. Data is encoded as RAW12 (see the Python module
+# cobra_system_control.numerical_utilities for helper routines). Recall RAW12 fields
+# A, B, C, D pack into bytes as follows:
+#   RAW12 = [A, B, C, D]
+#   BYTES = [A[11 : 4], B[11 : 4], (B[3 : 0] || A[3 : 0]),
+#            C[11 : 4], D[11 : 4], (D[3 : 0] || C[3 : 0])]
+
+dynamic:
+    offset: 0x0000
+    pos: 0
+    size: 1
+    comment: "Start of dynamically populated data"
+
+static:
+    offset: 0x0048
+    pos: 0
+    size: 1
+    comment: "Starts on a common multiple of 12bit and 8bits
+              so that fields are not separated.
+              Common multiple is 24. Other option is 0x60"
+
+virtual_sensor_0:
+    offset: 0x12c
+    pos: 0
+    size: 1
+    comment: "Start of metadata block for VIRTUAL_SENSOR_0.
+             Each block is 48 bytes, 32 RAW12 pixels"
+virtual_sensor_1:
+    offset: 0x15c
+    pos: 0
+    size: 1
+    comment: "See virtual_sensor_0"
+virtual_sensor_2:
+    offset: 0x18c
+    pos: 0
+    size: 1
+    comment: "See virtual_sensor_0"
+virtual_sensor_3:
+    offset: 0x1bc
+    pos: 0
+    size: 1
+    comment: "See virtual_sensor_0"
+virtual_sensor_4:
+    offset: 0x1ec
+    pos: 0
+    size: 1
+    comment: "See virtual_sensor_0"
+virtual_sensor_5:
+    offset: 0x21c
+    pos: 0
+    size: 1
+    comment: "See virtual_sensor_0"
+virtual_sensor_6:
+    offset: 0x24c
+    pos: 0
+    size: 1
+    comment: "See virtual_sensor_0"
+virtual_sensor_7:
+    offset: 0x27c
+    pos: 0
+    size: 1
+    comment: "See virtual_sensor_0"
+
+
+# """
+# Below here is the metadata spec but this data is not explicitly
+# used in the FW
+#
+# Here, the offset is by pixel number. Above the offset is by byte
+# """
+# PARAMS:
+#     WORD_SIZE: &WORD_SIZE 12
+#     BLOCK_SIZE: &BLOCK_SIZE 2
+#
+#
+#
+# metadata:
+#     addr_base: 0x0000_0000
+#     n_blocks: 1920
+#     fields:
+#         sensor_mode:
+#             offset: 0
+#             pos: 0
+#             size: 4
+#             mnemonic: {'image': 2, 'video': 2, 'smfd': 1, 'dmfd': 0}
+#             comment: "0: Pleco DMFD mode
+#                       1: Pleco SMFD mode
+#                       2: Pleco image/video mode"
+#         hdr_retry:
+#             offset: 0
+#             pos: 4
+#             size: 1
+#             comment: "When HDR mode is enabled, the sensor head monitors
+#                       the image data out of the GTOF for saturation. If
+#                       saturation is detected in an ROI, a 'retry' ROI with
+#                       modified parameters is sent. The hdr_flag identifies
+#                       this so-called 'retry' ROI. The number of 'retry' ROIs
+#                       is always 0 or 1 and no saturation detection is
+#                       performed on the image data of a retry ROI."
+#         roi_start_row:
+#             offset: 1
+#             pos: 0
+#             size: *WORD_SIZE
+#             comment: "Starting row for ROI."
+#         roi_num_row:
+#             offset: 2
+#             pos: 0
+#             size: *WORD_SIZE
+#             comment: "Number of rows in ROI."
+#         mod_idx_f0:
+#             offset: 3
+#             pos: 0
+#             size: *WORD_SIZE
+#             comment: "Modulation frequency integer divisor
+#                       for frequency 0. Valid values are [3,9].
+#                       Example: 3: = 1000/3 MHZ"
+#         mod_idx_f1:
+#             offset: 4
+#             pos: 0
+#             size: *WORD_SIZE
+#             comment: "Modulation frequency integer divisor
+#                       for frequency 0. Valid values are [3,9].
+#                       Example: 3: = 1000/3 MHZ"
+#         npulse_f0:
+#             offset: 5
+#             pos: 0
+#             size: *WORD_SIZE
+#             comment: "The number of clock cycles in one burst.
+#                       The laser fires for 1/3 of this setting. Bursts
+#                       are repeated using inte_burst_length_fx to build
+#                       up the desired integration time given the modulation
+#                       frequency setting. See get_timing_parameters() in
+#                       pleco.py for details on the calculation of this
+#                       parameter."
+#         npulse_f1:
+#             offset: 6
+#             pos: 0
+#             size: *WORD_SIZE
+#             comment: "The number of clock cycles in one burst.
+#                       The laser fires for 1/3 of this setting. Bursts
+#                       are repeated using inte_burst_length_fx to build
+#                       up the desired integration time given the modulation
+#                       frequency setting. See get_timing_parameters() in
+#                       pleco.py for details on the calculation of this
+#                       parameter."
+#         inte_burst_length_f0:
+#             offset: 7
+#             pos: 0
+#             size: *WORD_SIZE
+#             comment: "Number of bursts needed to obtain desired
+#                       integration time given the modulation frequency.
+#                       npulse_fx defines the number of clock cycles in 1 burst,
+#                       with the number of laser pulses being 1/3 of this number.
+#                       See get_timing_parameters() in pleco.py for details
+#                       on the calculation of this parameter"
+#         inte_burst_length_f1:
+#             offset: 8
+#             pos: 0
+#             size: *WORD_SIZE
+#             comment: "Number of bursts needed to obtain desired
+#                       integration time given the modulation frequency.
+#                       npulse_fx defines the number of clock cycles in 1 burst,
+#                       with the number of laser pulses being 1/3 of this number.
+#                       See get_timing_parameters() in pleco.py for details
+#                       on the calculation of this parameter"
+#         roi_id:
+#             offset: 9
+#             pos: 0
+#             size: *WORD_SIZE
+#             comment: "The ID of the ROI, which is obtained from the
+#                       corresponding scan parameters"
+#         blob1:
+#             offset: 10
+#             pos: 0
+#             size: *WORD_SIZE
+#             comment: "Reserved"
+#         blob2:
+#             offset: 11
+#             pos: 0
+#             size: *WORD_SIZE
+#             comment: "Reserved"
+#         blob3:
+#             offset: 12
+#             pos: 0
+#             size: *WORD_SIZE
+#             comment: "Reserved"
+#         blob4:
+#             offset: 13
+#             pos: 0
+#             size: *WORD_SIZE
+#             comment: "Reserved"
+#         virtual_sensor_bitmask:
+#             offset: 14
+#             pos: 0
+#             size: *WORD_SIZE
+#             comment: "Blob5
+#                       Bitmask to tell R2D which VIRTUAL_SENSOR_s are active"
+#         start_stop_flags_0:
+#             offset: 15
+#             pos: 0
+#             size: *WORD_SIZE
+#             comment: "<0>: when true, indicates ROI is first in depth frame
+#                       <1>: when true, indicates ROI is last in depth frame
+#                       <2>: when true, indicates ROI should be summed
+#                       <3>: when true, indicates summed ROIs should be
+#                       saved to disk"
+#         start_stop_flags_1:
+#             offset: 16
+#             pos: 0
+#             size: *WORD_SIZE
+#             comment: "See _0"
+#         start_stop_flags_2:
+#             offset: 17
+#             pos: 0
+#             size: *WORD_SIZE
+#             comment: "See _0"
+#         start_stop_flags_3:
+#             offset: 18
+#             pos: 0
+#             size: *WORD_SIZE
+#             comment: "See _0"
+#         start_stop_flags_4:
+#             offset: 19
+#             pos: 0
+#             size: *WORD_SIZE
+#             comment: "See _0"
+#         start_stop_flags_5:
+#             offset: 20
+#             pos: 0
+#             size: *WORD_SIZE
+#             comment: "See _0"
+#         start_stop_flags_6:
+#             offset: 21
+#             pos: 0
+#             size: *WORD_SIZE
+#             comment: "See _0"
+#         start_stop_flags_7:
+#             offset: 22
+#             pos: 0
+#             size: *WORD_SIZE
+#             comment: "See _0"
+#         roi_counter:
+#             offset: 23
+#             pos: 0
+#             size: *WORD_SIZE
+#             comment: "Rolling counter for the number of ROIs emitted."
+#         timestamp_0:
+#             offset: 24
+#             pos: 0
+#             size: *WORD_SIZE
+#             comment: "Freerunning counter based on settings of
+#                       registers in the scan peripheral:
+#                           scan_tstamp_enable,
+#                           tstamp_trigger_ext_en,
+#                           tstamp_sync_aux_en.
+#                       Overflow takes
+#                       2**48 seconds = 2.8e_14s.
+#                       See timestamp_0 through timestamp_6.
+#
+#                       Extracting coarse and fine from the metadata:
+#                       uint64_t timestamp_fine =
+#                           (uint64_t(getmd(timestamp0)) +
+#                           (uint64_t(getmd(timestamp1))<<12) +
+#                           (uint64_t(getmd(timestamp2))<<24);
+#                       timestamp_fine &= 0xffffffff;
+#
+#                       uint64_t timestamp_coarse =
+#                             (uint64_t(getmd(timestamp2)) +
+#                             (uint64_t(getmd(timestamp3))<<12) +
+#                             (uint64_t(getmd(timestamp4))<<24) +
+#                             (uint64_t(getmd(timestamp5))<<36) +
+#                             (uint64_t(getmd(timestamp6))<<48);
+#                       timestamp_coarse >>= 8;
+#
+#                       When using a 1 PPS source of the auxiliary sync source,
+#                       the fine stamp has units of 10ns / step
+#                       and the coarse count has units of 1s / step
+#                       "
+#         timestamp_1:
+#             offset: 25
+#             pos: 0
+#             size: *WORD_SIZE
+#             comment: "See _0"
+#         timestamp_2:
+#             offset: 26
+#             pos: 0
+#             size: *WORD_SIZE
+#             comment: "See _0"
+#         timestamp_3:
+#             offset: 27
+#             pos: 0
+#             size: *WORD_SIZE
+#             comment: "See _0"
+#         timestamp_4:
+#             offset: 28
+#             pos: 0
+#             size: *WORD_SIZE
+#             comment: "See _0"
+#         timestamp_5:
+#             offset: 29
+#             pos: 0
+#             size: *WORD_SIZE
+#             comment: "See _0"
+#         timestamp_6:
+#             offset: 30
+#             pos: 0
+#             size: *WORD_SIZE
+#             comment: "See _0"
+#         adc_mon_0:
+#             offset: 31
+#             pos: 0
+#             size: *WORD_SIZE
+#             comment: "FPGA ADC measurement
+#                       M25: lcm_temp4"
+#         adc_mon_1:
+#             offset: 32
+#             pos: 0
+#             size: *WORD_SIZE
+#             comment: "FPGA ADC measurement
+#                       M25: lcm_temp5"
+#         adc_mon_2:
+#             offset: 33
+#             pos: 0
+#             size: *WORD_SIZE
+#             comment: "FPGA ADC measurement
+#                       M25: laser_therm"
+#         adc_mon_3:
+#             offset: 34
+#             pos: 0
+#             size: *WORD_SIZE
+#             comment: "FPGA ADC measurement
+#                       M25: lcm_currs_coarse"
+#         adc_mon_4:
+#             offset: 35
+#             pos: 0
+#             size: *WORD_SIZE
+#             comment: "FPGA ADC measurement
+#                       M25: vlda_currs"
+#         adc_mon_5:
+#             offset: 36
+#             pos: 0
+#             size: *WORD_SIZE
+#             comment: "FPGA ADC measurement
+#                       M25: pcb_temp"
+#         adc_mon_6:
+#             offset: 37
+#             pos: 0
+#             size: *WORD_SIZE
+#             comment: "FPGA ADC measurement
+#                       M25: vlda"
+#         adc_mon_7:
+#             offset: 38
+#             pos: 0
+#             size: *WORD_SIZE
+#             comment: "FPGA ADC measurement
+#                       M25: 18v_lcm"
+#         adc_mon_8:
+#             offset: 39
+#             pos: 0
+#             size: *WORD_SIZE
+#             comment: "FPGA ADC measurement
+#                       M25: dtr (fpga die temp)"
+#
+#         rtd_output:
+#             offset: 48
+#             pos: 0
+#             size: *WORD_SIZE
+#             comment: "Reserved"
+#         reduce_mode:
+#             offset: 49
+#             pos: 0
+#             size: *WORD_SIZE
+#             comment: "3:1 reduction in subframe size due to tap addition
+#                       being done in the FPGA.
+#
+#                       0: No reduction in subframes
+#                       1: 3:1 reduction in subframes
+#
+#                       See test_mode and sensor_mode"
+#         sensor_sn:
+#             offset: 50
+#             pos: 0
+#             size: *WORD_SIZE
+#             comment: "Sensor serial number"
+#         test_mode:
+#             offset: 51
+#             pos: 0
+#             size: *WORD_SIZE
+#             mnemonic: {'line': 0, 'pixel': 1, 'tap': 2}
+#             comment: "Emit test patterns from the FPGA. Normal rules for sensor_mode
+#                       and reduce_mode apply when when test_mode != 0.
+#
+#                       0: Test mode disabled
+#                       1: Line mode: The FPGA behaves as if the triplet (i, i, i)
+#                          is received from PLECO with i incrementing by 1 after
+#                          each line and resetting with each frame.
+#                       2: Pixel mode: The FPGA behaves as if the triplet (i, i, i)
+#                          is received from PLECO with i incrementing by 1 after
+#                          each pixel and resetting with each line.
+#                       3: Tap mode: The FPGA behaves as if the triplet (i, i+1, i+2)
+#                          is received from PLECO with i incrementing by 3 after
+#                          each pixel and resetting with each line."
+#         quant_mode:
+#             offset: 52
+#             pos: 0
+#             size: *WORD_SIZE
+#             comment: "Quant mode fixed to 0"
+#         mipi_raw_mode:
+#             offset: 53
+#             pos: 0
+#             size: *WORD_SIZE
+#             comment: "Mipi mode fixed to RAW8=1"
+#         hdr_threshold:
+#             offset: 54
+#             pos: 0
+#             size: *WORD_SIZE
+#             comment: "Threshold for saturation detection. If a tap value higher
+#                       than this setting is seen by the FPGA, an HDR ROI will be
+#                       immediately collected after the current ROI. Since the GTOF
+#                       has an 11-bit ADC, a value >2047 essentially turns HDR mode
+#                       off. Since the FPGA performs tap accumulation, in R2D, this
+#                       value will be multiplied by 3 to determine which pixels are
+#                       considered saturated."
+#         system_type:
+#             offset: 55
+#             pos: 0
+#             size: *WORD_SIZE
+#             comment: "Defines the system type
+#                       {1: m20, 2: m25, 3: m30}"
+#         rx_pcb_type:
+#             offset: 56
+#             pos: 0
+#             size: *WORD_SIZE
+#             comment: "Defines the rx pcb rev
+#                       {1: 1 or A, 2: 2 or B}"
+#         tx_pcb_type:
+#             offset: 57
+#             pos: 0
+#             size: *WORD_SIZE
+#             comment: "Defines the tx pcb rev
+#                       {1: 1 or A, 2: 2 or B}"
+#         lcm_type:
+#             offset: 58
+#             pos: 0
+#             size: *WORD_SIZE
+#             comment: "Defines the lcm layout type
+#                       {1: Delta, 2: Tango, 3: Foxtrot}"
+#         range_cal_offset_mm_lo_0807:
+#             offset: 59
+#             pos: 0
+#             size: *WORD_SIZE
+#             comment: "Offset between calibrated range and actual range
+#                       in units of millimeters in s10.5 format"
+#         range_cal_offset_mm_hi_0807:
+#             offset: 60
+#             pos: 0
+#             size: *WORD_SIZE
+#             comment: "Offset between calibrated range and actual range
+#                       in units of millimeters in s10.5 format"
+#         range_cal_mm_per_volt_lo_0807:
+#             offset: 61
+#             pos: 0
+#             size: *WORD_SIZE
+#             comment: "Range Temp Calibration
+#                       Coefficient of mm per volts in u9.7 format"
+#         range_cal_mm_per_volt_hi_0807:
+#             offset: 62
+#             pos: 0
+#             size: *WORD_SIZE
+#             comment: "Range Temp Calibration
+#                       Coefficient of mm per volts in u9.7 format"
+#         range_cal_mm_per_celsius_lo_0807:
+#             offset: 63
+#             pos: 0
+#             size: *WORD_SIZE
+#             comment: "Range Temp Calibration
+#                       Coefficient of degree mm per Celsius in u9.7 format"
+#         range_cal_mm_per_celsius_hi_0807:
+#             offset: 64
+#             pos: 0
+#             size: *WORD_SIZE
+#             comment: "Range Temp Calibration
+#                       Coefficient of degree mm per Celsius in u9.7 format"
+#         range_cal_offset_mm_lo_0908:
+#             offset: 65
+#             pos: 0
+#             size: *WORD_SIZE
+#             comment: "Offset between calibrated range and actual range
+#                       in units of millimeters in s10.5 format"
+#         range_cal_offset_mm_hi_0908:
+#             offset: 66
+#             pos: 0
+#             size: *WORD_SIZE
+#             comment: "Offset between calibrated range and actual range
+#                       in units of millimeters in s10.5 format"
+#         range_cal_mm_per_volt_lo_0908:
+#             offset: 67
+#             pos: 0
+#             size: *WORD_SIZE
+#             comment: "Range Temp Calibration
+#                       Coefficient of mm per volts in u9.7 format"
+#         range_cal_mm_per_volt_hi_0908:
+#             offset: 68
+#             pos: 0
+#             size: *WORD_SIZE
+#             comment: "Range Temp Calibration
+#                       Coefficient of mm per volts in u9.7 format"
+#         range_cal_mm_per_celsius_lo_0908:
+#             offset: 69
+#             pos: 0
+#             size: *WORD_SIZE
+#             comment: "Range Temp Calibration
+#                       Coefficient of degree mm per Celsius in u9.7 format"
+#         range_cal_mm_per_celsius_hi_0908:
+#             offset: 70
+#             pos: 0
+#             size: *WORD_SIZE
+#             comment: "Range Temp Calibration
+#                       Coefficient of degree mm per Celsius in u9.7 format"
+#         adc_cal_gain:
+#             offset: 71
+#             pos: 0
+#             size: *WORD_SIZE
+#             comment: "Gain value of the runtime fpga adc calibration"
+#         adc_cal_offset:
+#             offset: 72
+#             pos: 0
+#             size: *WORD_SIZE
+#             comment: "Offset value of the runtime fpga adc calibration"
+#         random_scan_table_tag:
+#             offset: 73
+#             pos: 0
+#             size: *WORD_SIZE
+#             comment: "Randomized tag per scan_table to help R2D handle dropped
+#                       frames and changed scan settings"
+#
+#
+#     arrays:
+#       - offset: 200
+#         step: 32
+#         rep: 8
+#         fields:
+#             user_tag:
+#                 offset: 0
+#                 pos: 0
+#                 size: *WORD_SIZE
+#                 comment: "Identifier tag readable in network stream for information on when new scan
+#                           definition has been applied."
+#             binning:
+#                 offset: 1
+#                 pos: 0
+#                 size: *WORD_SIZE
+#                 comment: "0: No binning
+#                           1: No binning
+#                           2: 2x2 binning
+#                           4: 4x4 binning"
+#             nn_level:
+#                 offset: 2
+#                 pos: 0
+#                 size: 3
+#                 comment: "0: No filtering.
+#                           1: NN, requiring two neighbors in 3x3 pixel window.
+#                           2: NN, requiring four neighbors in 5x5 pixel window.
+#                           3: NN, requiring four neighbors in 6x6 pixel window.
+#                           4: NN, requiring six neighbors in 7x7 pixel window.
+#                           5: NN, requiring ten neighbors in 9x11 pixel window."
+#             start_row:
+#                 offset: 3
+#                 pos: 0
+#                 size: *WORD_SIZE
+#                 comment: "Start row for ROI"
+#             n_rows:
+#                 offset: 4
+#                 pos: 0
+#                 size: *WORD_SIZE
+#                 comment: "Number of rows in ROI"
+#             n_rois:
+#                 offset: 5
+#                 pos: 0
+#                 size: *WORD_SIZE
+#                 comment: "Number of ROIs expected in frame"
+#             rtd_algorithm_common:
+#                 offset: 6
+#                 pos: 0
+#                 size: *WORD_SIZE
+#                 comment: "0: DSP Processing Mode:
+#                              {0: Grid Mode/Camera Mode, 1: Stripe Mode/Lidar Mode}
+#                           1: Turn off range masking
+#                           2: Turn on max range limit filter
+#                           3: Turn on range correction for temperature
+#                           4: reserved
+#                           5: reserved
+#                           6: reserved
+#                           7: reserved
+#                           8: reserved
+#                           9: reserved
+#                           10: reserved
+#                           11: Turn off all R2D processing. Useful when saving raw data from
+#                               special frontend so frames are not dropped"
+#             snr_threshold:
+#                 offset: 7
+#                 pos: 0
+#                 size: *WORD_SIZE
+#                 comment: "Threshold filter on SNR"
+#             unused_8:
+#                 offset: 8
+#                 pos: 0
+#                 size: 5
+#                 comment: "Unused"
+#             unused_9:
+#                 offset: 9
+#                 pos: 0
+#                 size: *WORD_SIZE
+#                 comment: "Unused"
+#             random_virtual_sensor_tag:
+#                 offset: 10
+#                 pos: 0
+#                 size: *WORD_SIZE
+#                 comment: "Randomized tag for R2D to help sense dropped
+#                           ROIs or changed scan settings"
+#
+#             rtd_algorithm_grid_mode:
+#                 offset: 11
+#                 pos: 0
+#                 size: *WORD_SIZE
+#                 comment: "0: Turn off convolution
+#                           1: Turn on Range median filter: 5-point cross-shaped kernel
+#                           2: Turn on Recursive minmax filter
+#                           3: reserved
+#                           4: reserved
+#                           5: reserved
+#                           6: reserved
+#                           7: reserved
+#                           8: reserved
+#                           9: reserved
+#                           10: reserved
+#                           11: reserved
+#             rtd_algorithm_stripe_mode:
+#                 offset: 12
+#                 pos: 0
+#                 size: *WORD_SIZE
+#                 comment: "0: Use SNR-weighted sum
+#                           1: Use Rect sum
+#                           2: Use Gaussian sum
+#                           3: Turn on Range median filter
+#                           4: Turn on Minmax filter
+#                           5: reserved
+#                           6: reserved
+#                           7: reserved
+#                           8: reserved
+#                           9: reserved
+#                           10: reserved
+#                           11: reserved
+#             unused_13:
+#                 offset: 13
+#                 pos: 0
+#                 size: *WORD_SIZE
+#                 comment: "Unused"
+#             # ...
+#             unused_31:
+#                 offset: 12
+#                 pos: 0
+#                 size: *WORD_SIZE
+#                 comment: "Unused"
+#

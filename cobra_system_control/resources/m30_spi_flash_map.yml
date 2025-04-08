@@ -1,0 +1,135 @@
+#
+#
+#
+
+PARAMS:
+    # 64 KiB (0.5 Mib) - corresponds to the range of one HEX/MCS "extended
+    # linear address" record (type = 0x04)
+    BLOCK_SIZE: &BLOCK_SIZE 0x0000_1000
+    #BLOCK_SIZE: &BLOCK_SIZE 0x0001_0000
+    WORD_SIZE: &WORD_SIZE 8
+
+
+bitstream_primary:
+    addr_base: 0x0000_0000
+    n_blocks: 256 #16
+    fields:
+        lscc_signature:
+            offset: 0x0000
+            pos: 0
+            size: 32
+            comment: "LSCC signature is 0x4c53_4343"
+        _last_word_:
+            offset: 0x000f_ffff
+            pos: 0
+            size: *WORD_SIZE
+            comment: "The last word allocated to this partition."
+
+lcm_patterns:
+    addr_base: 0x0010_0000
+    n_blocks: 128 #8
+    fields:
+        table_0_word_0:
+            offset: 0x00_0000
+            pos: 0
+            size: *WORD_SIZE
+            comment: "First normal table, Himax output OUT1"
+        table_0_word_1023:
+            offset: 0x00_03ff
+            pos: 0
+            size: *WORD_SIZE
+            comment: "First normal table, Himax output OUT1024"
+
+        table_509_word_0:
+            offset: 0x07_f400
+            pos: 0
+            size: *WORD_SIZE
+            comment: "Last normal table, Himax output OUT1"
+        table_509_word_1023:
+            offset: 0x07_f7ff
+            pos: 0
+            size: *WORD_SIZE
+            comment: "Last normal table, Himax output OUT1024"
+
+        table_test_word_0:
+            offset: 0x07_f800
+            pos: 0
+            size: *WORD_SIZE
+            comment: "Test pattern table, first byte"
+        table_test_word_1023:
+            offset: 0x07_fbff
+            pos: 0
+            size: *WORD_SIZE
+            comment: "Test pattern table, last byte"
+
+        table_reset_word_0:
+            offset: 0x07_fc00
+            pos: 0
+            size: *WORD_SIZE
+            comment: "Table for 9V on all rails, first byte"
+        table_reset_word_1023:
+            offset: 0x07_ffff
+            pos: 0
+            size: *WORD_SIZE
+            comment: "Table for 9V on all rails, last byte"
+
+        _last_word_:
+            offset: 0x07_ffff
+            pos: 0
+            size: *WORD_SIZE
+            comment: "The last word allocated to this partition."
+
+
+# Dual-boot
+bitstream_golden:
+  addr_base: 0x0030_0000
+  n_blocks: 192 #12
+  fields:
+    lscc_signature:
+      offset: 0x0000
+      pos: 0
+      size: 32
+      comment: "LSCC signature is 0x4c53_4343"
+    _last_word_:
+      offset: 0x000b_ffff
+      pos: 0
+      size: *WORD_SIZE
+      comment: "The last word allocated to this partition."
+
+# Bitstream JUMP table
+bitstream_jump_table:
+  addr_base: 0x003f_0000
+  n_blocks: 16 #1
+  fields:
+    scratch_sector:
+      offset: 0xe000
+      pos: 0
+      size: *WORD_SIZE
+      comment: "Sector 0xe000 - 0xefff (4 KiB) reserved for testing purposes."
+    lssc_signature:
+      offset: 0xff00
+      pos: 0
+      size: 32
+      access: ro
+      comment: "LSCC signature is 0x4c53_4343"
+    _last_word_:
+      offset: 0x000_ffff
+      pos: 0
+      size: *WORD_SIZE
+      comment: "The last word allocated to this partition."
+
+# Last word of SPI Flash memory is 0x3f_ffff (4096 KiB = 32 Mib)
+calibration:
+    addr_base: 0x0025_0000
+    n_blocks: 1
+    fields:
+        byte_0:
+            offset: 0x00_0000
+            pos: 0
+            size: *WORD_SIZE
+            comment: "TODO"
+        _last_word_:
+            offset: 0x00_0fff
+            pos: 0
+            size: *WORD_SIZE
+            comment: "TODO"

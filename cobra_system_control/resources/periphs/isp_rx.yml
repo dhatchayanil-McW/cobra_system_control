@@ -1,0 +1,204 @@
+#
+dsi_csi:
+    offset: 0x000
+    pos: 0
+    size: 1
+    comment: "Chooses between PHY IP application, DSI or CSI2
+              0 - CSI2
+              1 - DSI"
+master_slave:
+    offset: 0x000
+    pos: 1
+    size: 1
+    comment: "Selects the PHY IP configuration
+              0 - slave
+              1 - master"
+auto_pd_en:
+    offset: 0x000
+    pos: 2
+    size: 1
+    comment: "Powers down inactive lanes
+              0 - keep powered up at LP11
+              1 - powered down"
+hsel:
+    offset: 0x000
+    pos: 3
+    size: 1
+    comment: "High speed select
+              0 - <= 1.5Gbps
+              1 - > 1.5Gbps"
+rxcdrp:
+    offset: 0x001
+    pos: 2
+    size: 2
+    comment: "LP-CD threshold voltage. Default is 2’b01.
+              Min – 200mV, Max – 450mV"
+required_01:
+    offset: 0x001
+    pos: 0
+    size: 2
+    comment: "Must be 0b00"
+rxlprp:
+    offset: 0x002
+    pos: 0
+    size: 3
+    comment: "Adjust the threshold voltage and hysteresis
+              of LP-RX, default setting 2’b001"
+en_cil:
+    offset: 0x002
+    pos: 3
+    size: 1
+    comment: "Enables or disbles CIL
+              0 - bypassed
+              1 - enabled"
+deskew_en:
+    offset: 0x003
+    pos: 0
+    size: 1
+    comment: "Enables Deskew feature affects ERRSYNC/NOSYNC
+              0 - disabled
+              1 - enabled"
+required_03:
+    offset: 0x003
+    pos: 1
+    size: 3
+    comment: "Must be 0b010"
+required_09:
+    offset: 0x009
+    pos: 0
+    size: 1
+    comment: "Must be 0b0"
+rx_data_width_hs:
+    offset: 0x009
+    pos: 1
+    size: 2
+    comment: "High-Speed Receive Data Width Select.
+              2’b00 – 1/8 the HS bit rate
+              2’b01 – 1/16 the HS bit rate
+              2’b10 – 1/32 the HS bit rate"
+lane0_sel_lo:
+    offset: 0x009
+    pos: 3
+    size: 1
+    comment: "LSB of lane0_sel. This determines which lane acts as
+              data lane0 in HS Operation mode. Value from 0-3."
+lane0_sel_hi:
+    offset: 0x00a
+    pos: 0
+    size: 1
+    comment: "MSB of lane0_sel. This determines which lane acts as
+              data lane0 in HS Operation mode. Value from 0-3."
+cfg_num_lanes:
+    offset: 0x00a
+    pos: 1
+    size: 2
+    comment: "Sets the number of active lanes. Value from 0-3."
+uc_prg_rxhs_settle_lo:
+    offset: 0x00a
+    pos: 3
+    size: 1
+    comment: "LSBs of uc_prg_rxhs_settle.
+              Bits used to program T_HS_SETTLE. For clock pin.
+              T_HS_SETTLE = (uc_PRG_RXHS_SETTLE + 1) × (Tperiod of sync_clk_i)."
+uc_prg_rxhs_settle_mid:
+    offset: 0x00b
+    pos: 0
+    size: 4
+    comment: "midSBs of uc_prg_rxhs_settle.
+              Bits used to program T_HS_SETTLE. For clock pin.
+              T_HS_SETTLE = (uc_PRG_RXHS_SETTLE + 1) × (Tperiod of sync_clk_i)."
+uc_prg_rxhs_settle_hi:
+    offset: 0x00c
+    pos: 0
+    size: 1
+    comment: "MSBs of uc_prg_rxhs_settle.
+              Bits used to program T_HS_SETTLE. For clock pin.
+              T_HS_SETTLE = (uc_PRG_RXHS_SETTLE + 1) × (Tperiod of sync_clk_i)."
+required_0c:
+    offset: 0x00c
+    pos: 1
+    size: 3
+    comment: "Must be 0b000"
+required_0f:
+    offset: 0x00f
+    pos: 0
+    size: 2
+    comment: "Must be 0b00"
+u_prg_rxhs_settle_lo:
+    offset: 0x00f
+    pos: 2
+    size: 2
+    comment: "LSBs of u_prg_rxhs_settle. Bits used to program T_HS_SETTLE.
+              For data pins.
+              T_HS_SETTLE = (uc_PRG_RXHS_SETTLE + 1) × (Tperiod of sync_clk_i)"
+u_prg_rxhs_settle_hi:
+    offset: 0x010
+    pos: 0
+    size: 4
+    comment: "MSBs of u_prg_rxhs_settle. Bits used to program T_HS_SETTLE.
+              For data pins.
+              T_HS_SETTLE = (uc_PRG_RXHS_SETTLE + 1) × (Tperiod of sync_clk_i)"
+required_14:
+    offset: 0x014
+    pos: 0
+    size: 2
+    comment: "Must be 0b00"
+test_enbl_lo:
+    offset: 0x014
+    pos: 2
+    size: 2
+    comment: "LSBs of six-bit signal that enables testing modes"
+test_enbl_hi:
+    offset: 0x015
+    pos: 0
+    size: 4
+    comment: "MSBs of six-bit signal that enables testing modes"
+
+cont_clk_mode:
+    offset: 0x01e
+    pos: 0
+    size: 1
+    comment: "Enables the slave clock lane to maintain HS reception
+              state during continuous clock mode operation.
+              [0] – Disabled
+              [1] – Enabled"
+required_1e:
+    offset: 0x01e
+    pos: 1
+    size: 3
+    comment: "Must be 0b000"
+
+# CSI-2 layer registers
+mipi_rx_ip_dt:
+    offset: 0x31
+    pos: 0
+    size: 8
+    access: ro
+    comment: "Unsupported (broken in the Lattice IP). See `mipi_rx_dt`
+              instead."
+mipi_rx_ip_wc_lo:
+    offset: 0x32
+    pos: 0
+    size: 8
+    access: ro
+    comment: "Unsupported (broken in the Lattice IP). See `mipi_rx_wc`
+              instead."
+mipi_rx_ip_wc_hi:
+    offset: 0x33
+    pos: 0
+    size: 8
+    access: ro
+    comment: "Unsupported (broken in the Lattice IP). See `mipi_rx_wc`
+              instead."
+mipi_rx_ip_ecc:
+    offset: 0x34
+    pos: 0
+    size: 8
+    access: ro
+    comment: "Unsupported (broken in the Lattice IP). See `mipi_rx_ecc`
+              instead."
+mipi_rx_ip_ref_dt:
+    offset: 0x39
+    pos: 0
+    size: 8
+    comment: "Set to 0x2c = RAW12"

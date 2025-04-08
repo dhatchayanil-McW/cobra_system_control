@@ -1,0 +1,15 @@
+[Unit]
+Description=Continuously monitors Cobra system including Sensor Head and NCB
+Requires=remote.service
+After=remote.service
+
+
+[Service]
+ExecStart=/usr/bin/run_monitor
+ExecStop=/bin/rm /run/lumotive/monitor
+TimeoutStopSec=5
+Restart=on-failure
+RestartSec=5s
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,21 @@
+#
+buff_0_word_0:
+    offset: 0x0000
+    pos: 0
+    size: &WORD_SIZE 8
+    comment: "LCD driver output pin OUT1"
+buff_0_word_1023:
+    offset: 0x03ff
+    pos: 0
+    size: *WORD_SIZE
+    comment: "LCD driver output pin OUT1024"
+buff_1_word_0:
+    offset: 0x0400
+    pos: 0
+    size: *WORD_SIZE
+    comment: "LCD driver output pin OUT1"
+buff_1_word_1023:
+    offset: 0x07ff
+    pos: 0
+    size: *WORD_SIZE
+    comment: "LCD driver output pin OUT1024"
